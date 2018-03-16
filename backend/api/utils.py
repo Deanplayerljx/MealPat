@@ -1,5 +1,5 @@
 import json
-import jsonify
+from flask import jsonify
 
 def create_response(data={}, status=200, message=''):
     """

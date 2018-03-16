@@ -2,6 +2,7 @@ from flask_script import Manager
 from flask_migrate import Migrate, MigrateCommand
 from api import db, app
 import os 
+from api.models import User
 
 
 manager = Manager(app)
@@ -36,6 +37,8 @@ def recreate_db():
     """
     db.drop_all()
     db.create_all()
+    t = User('ewr','wew','ww','wewe','wew','wewe')
+    db.session.add(t)
     db.session.commit()
 
 
