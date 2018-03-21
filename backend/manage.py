@@ -37,7 +37,7 @@ def recreate_db():
     """
     db.drop_all()
     db.create_all()
-    t = User('ewr','wew','ww','wewe','wew','wewe')
+    t = User(1234,'wew','ww','wewe','wew','wewe')
     db.session.add(t)
     db.session.commit()
 

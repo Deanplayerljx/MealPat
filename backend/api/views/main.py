@@ -6,6 +6,12 @@ from api.utils import create_response, InvalidUsage
 from api.models import User
 mod = Blueprint('main', __name__)
 
+SIGN_UP_URL = 'end1'
+LOG_IN_URL = 'end2'
+SEARCH_PAGE_URL = 'end3'
+RESTAURANT_URL = 'end4'
+NEW_POST_URL = 'end5'
+POST_DETAIL_URL = 'end6'
 # function that is called when you visit /
 @app.route('/')
 def index():
