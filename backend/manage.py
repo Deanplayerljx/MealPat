@@ -2,7 +2,7 @@ from flask_script import Manager
 from flask_migrate import Migrate, MigrateCommand
 from api import db, app
 import os 
-from api.models import User
+from api.models import User, Post, History, Restaurant, ChatRoom
 
 
 manager = Manager(app)
@@ -37,8 +37,15 @@ def recreate_db():
     """
     db.drop_all()
     db.create_all()
-    t = User(1234,'wew','ww','wewe','wew','wewe')
-    db.session.add(t)
+    # t = User(1234,'wew','ww','wewe','wew','wewe')
+    # db.session.add(t)
+    # db.session.commit()
+    ChatRoom_data = {'Messages':['hi','holla']}
+    t3 = ChatRoom(ChatRoom_data)
+    db.session.add(t3)
+    ChatRoom_data = {'Messages':['hiii','holla']}
+    t4 = ChatRoom(ChatRoom_data)
+    db.session.add(t4)
     db.session.commit()
 
 

@@ -7,9 +7,9 @@ from sqlalchemy.dialects.postgresql import ARRAY
 
 class User(db.Model):
     '''User(UID, phonenumber, interest, name, gender, password, address)'''
-    __tablename__ = "user"
+    __tablename__ = "mealpat_user"
 
-    UID = db.Column(db.String(40), unique=True, primary_key=True, nullable=False)
+    UID = db.Column(db.Integer, unique=True, primary_key=True, nullable=False)
     phonenumber = db.Column(db.String(12))
     interest = db.Column(ARRAY(db.String(20)))
     name = db.Column(db.String(20), nullable=False)
@@ -19,7 +19,6 @@ class User(db.Model):
 
 
     def __init__(self, data):
-        self.UID = data['UID']
         self.phonenumber = data['phonenumber']
         self.interest = data['interest']
         self.name = data['name']
@@ -47,7 +46,7 @@ class Restaurant(db.Model):
     """Restaurants(RID, name, address, rating, imageURL, price, openningTime, categories)"""
     __tablename__ = "restaurant"
 
-    RID = db.Column(db.String(40), unique=True, primary_key=True, nullable=False)
+    RID = db.Column(db.Integer, unique=True, primary_key=True, nullable=False)
     name = db.Column(db.String(20), nullable=False)
     address = db.Column(db.String(50), nullable=False)
     rating = db.Column(db.Float)
@@ -71,7 +70,7 @@ class ChatRoom(db.Model):
     """ChatRoom(CID, Messages)"""
     __tablename__ = "chatroom"
 
-    CID = db.Column(db.String(40), unique=True, primary_key=True)
+    CID = db.Column(db.Integer, unique=True, primary_key=True)
     Messages = db.Column(ARRAY(db.String(100)))
 
     def __init__(self, data):
@@ -84,11 +83,11 @@ class Post(db.Model):
     """Post(UID, RID, time, accompanies,CID)"""
     __tablename__ = "post"
     time = db.Column(db.DateTime)
-    UID = db.Column(db.String(40), db.ForeignKey('user.UID', ondelete='CASCADE'), primary_key=True, nullable=False)
-    RID = db.Column(db.String(40), db.ForeignKey('restaurant.RID', ondelete='CASCADE'), primary_key=True, nullable=False)
-    CID = db.Column(db.String(40), db.ForeignKey('chatroom.CID', ondelete='CASCADE'), unique=True, nullable=False)
+    UID = db.Column(db.Integer, db.ForeignKey('mealpat_user.UID', ondelete='CASCADE'), primary_key=True, nullable=False)
+    RID = db.Column(db.Integer, db.ForeignKey('restaurant.RID', ondelete='CASCADE'), primary_key=True, nullable=False)
+    CID = db.Column(db.Integer, db.ForeignKey('chatroom.CID', ondelete='CASCADE'), unique=True, nullable=False)
     # identified by UIDs
-    accompanies = db.Column(ARRAY(db.String(40)))
+    accompanies = db.Column(ARRAY(db.Integer))
     
 
     def __init__(self, data):
@@ -99,16 +98,16 @@ class Post(db.Model):
             self.CID = data['CID']
 
     def __repr__(self):
-        return '<post {}>'.format(self.CID)
+        return '<post {}>'.format(self.RID)
 
 class History(db.Model):
     """History(time, UID, RID, rating, accompanies)"""
     __tablename__ = "history"
 
     time = db.Column(db.DateTime)
-    UID = db.Column(db.String(40), db.ForeignKey('user.UID', ondelete='CASCADE',onupdate='CASCADE'), primary_key=True, nullable=False)
-    RID = db.Column(db.String(40), db.ForeignKey('restaurant.RID', ondelete='CASCADE', onupdate='CASCADE'), primary_key=True,, nullable=False)
-    accompanies = db.Column(ARRAY(db.String(40)))
+    UID = db.Column(db.Integer, db.ForeignKey('mealpat_user.UID', ondelete='CASCADE',onupdate='CASCADE'), primary_key=True, nullable=False)
+    RID = db.Column(db.Integer, db.ForeignKey('restaurant.RID', ondelete='CASCADE', onupdate='CASCADE'), primary_key=True, nullable=False)
+    accompanies = db.Column(ARRAY(db.Integer))
     rating = db.Column(db.Integer)
 
     def __init__(self, data):
