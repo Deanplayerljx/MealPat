@@ -48,7 +48,7 @@ class Restaurant(db.Model):
 
     RID = db.Column(db.Integer, unique=True, primary_key=True, nullable=False)
     name = db.Column(db.String(50), nullable=False)
-    address = db.Column(db.String(50), nullable=False)
+    address = db.Column(db.String(70))
     phonenumber = db.Column(db.String(12),nullable=True)
     categories = db.Column(ARRAY(db.String(50)))
     rating = db.Column(db.Float)

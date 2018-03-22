@@ -28,7 +28,7 @@ except ImportError:
 API_KEY= 'u98RiADHFAk1NwypNWP1KzkNYBoOwHcnBzlgAaGuuepbHBZ0i71QyZHjPxgqpF2HXanhezyN_7DJozE-I-mM_-ULq6joV8FVad7jmMlhtZNOzbdu4zb4eISRCIayWnYx'
 API_HOST = 'https://api.yelp.com'
 SEARCH_PATH = '/v3/businesses/search'
-DEFAULT_LOCATION = ['61801','61820']
+DEFAULT_LOCATION = ['61801','61820','61821','champaign,IL']
 SEARCH_LIMIT = 50
 
 manager = Manager(app)
@@ -39,35 +39,6 @@ manager.add_command('db', MigrateCommand)
 
 @manager.command
 def runserver():
-    for address in DEFAULT_LOCATION:
-        bussinesses = search(API_KEY,address).get('businesses')
-        for each_buss in bussinesses:
-            curr_addr = ""
-            for i in each_buss['location']['display_address']:
-                curr_addr += i + ','
-            curr_data = Restaurant.query.all()
-            exist = False
-            for k in curr_data:
-                if(curr_addr == k.address):
-                    exist = True
-                    break
-            if(not exist):
-                curr_category = []
-                for i in each_buss['categories']:
-                    curr_category.append(i['title'])
-                json_res = {
-                    'name' : each_buss['name'],
-                    'address' : curr_addr,
-                    'phonenumber' : each_buss['phone'],
-                    'categories' : curr_category,
-                    'rating' : each_buss['rating'],
-                    'imageURL' : each_buss['image_url'],
-                    'price' : each_buss['price']
-                }
-                json_object = Restaurant(json_res)
-                print(type(json_object))
-                db.session.add(json_object)
-                db.session.commit()
     app.run(debug=True, host='0.0.0.0', port=8000)
 
 
@@ -92,16 +63,30 @@ def recreate_db():
     """
     db.drop_all()
     db.create_all()
-    # t = User(1234,'wew','ww','wewe','wew','wewe')
-    # db.session.add(t)
-    # db.session.commit()
-    ChatRoom_data = {'Messages':['hi','holla']}
-    t3 = ChatRoom(ChatRoom_data)
-    db.session.add(t3)
-    ChatRoom_data = {'Messages':['hiii','holla']}
-    t4 = ChatRoom(ChatRoom_data)
-    db.session.add(t4)
-    db.session.commit()
+    addr_set = set()
+    for address in DEFAULT_LOCATION:
+        bussinesses = search(API_KEY,address).get('businesses')
+        for each_buss in bussinesses:
+            curr_addr = ""
+            for i in each_buss['location']['display_address']:
+                curr_addr += i + ' '
+            if(curr_addr not in addr_set):
+                curr_category = []
+                for i in each_buss['categories']:
+                    curr_category.append(i['title'])
+                json_res = {
+                    'name' : each_buss['name'],
+                    'address' : curr_addr,
+                    'phonenumber' : each_buss['phone'],
+                    'categories' : curr_category,
+                    'rating' : each_buss['rating'],
+                    'imageURL' : each_buss['image_url'],
+                    'price' : each_buss['price']
+                }
+                json_object = Restaurant(json_res)
+                db.session.add(json_object)
+                addr_set.add(curr_addr)
+        db.session.commit()
 
 
 def request(host, path, api_key, url_params=None):
