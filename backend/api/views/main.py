@@ -14,6 +14,7 @@ SEARCH_PAGE_URL = '/search'
 RESTAURANT_DETAIL_URL = '/restaurant/<int:rid>'
 NEW_POST_URL = '/new_post'
 POST_DETAIL_URL = '/post/<int:pid>'
+JOIN_POST_URL = '/join_post'
 # function that is called when you visit /
 @app.route('/')
 def index():
@@ -150,3 +151,25 @@ def create_post():
 
     # return the pid
     return create_response({"PID":pid}, status=200)
+
+@app.route(JOIN_POST_URL, methods=['PUT'])
+def join_post():
+    request_json = request.get_json()
+    data = {}
+    try:
+        data['PID'] = int(request_json['PID'])
+        data['UID'] = int(request_json['UID'])
+    except:
+        return create_response(message='missing required components',status=233)
+
+    sql = text('select accompanies from post where "PID"=:pid')
+    result = db.engine.execute(sql, pid=data['PID']).first()
+    accompanies = result.items()[0][1]
+    print (accompanies)
+    if data['PID'] in accompanies:
+        return create_response(message='user have already joined the post', status=241)
+    accompanies.append(data['PID'])
+
+    sql = text('update post set accompanies=:accompanies where "PID"=:pid')
+    result = db.engine.execute(sql, pid=data['PID'], accompanies=accompanies)
+    return create_response(message='join succeed', status=200)
