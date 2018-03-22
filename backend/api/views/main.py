@@ -5,6 +5,7 @@ from flask import jsonify
 from api.utils import create_response, InvalidUsage
 from api.models import User, Restaurant, ChatRoom, Post, History
 from sqlalchemy import text
+from datetime import datetime
 mod = Blueprint('main', __name__)
 
 SIGN_UP_URL = '/sign_up'
@@ -22,6 +23,7 @@ def index():
     var = [row[0] for row in result]
     return create_response({'result':var})
 
+# create a new user
 @app.route(SIGN_UP_URL, methods=['POST'])
 def sign_up():
     request_json = request.get_json()
@@ -46,7 +48,7 @@ def sign_up():
             data['phonenumber'] = request_json['phonenumber']
 
         if request_json['interest'] == '':
-            data['interest'] = None
+            data['interest'] = []
         else:
             data['interest'] = request_json['interest'].split(',')
         
@@ -63,6 +65,7 @@ def sign_up():
     except Exception as e:
         return create_response(message='username already exist', status=666)
 
+# verify login
 @app.route(LOG_IN_URL)
 def log_in():
     args = request.args
@@ -82,6 +85,7 @@ def log_in():
     else:
         return create_response({'UID':result[0]}, status=200)
 
+# get a list of restaurant basic info for search page
 @app.route(SEARCH_PAGE_URL)
 def get_restaurant_list():
     restaurant_list = Restaurant.query.all()
@@ -91,6 +95,7 @@ def get_restaurant_list():
     data = {'name_address_rid':[(row[0], row[1], row[2]) for row in result]}
     return create_response(data, status=200)
 
+# get restaurant detail information
 @app.route(RESTAURANT_DETAIL_URL)
 def get_restaurant_detail(rid):
     sql = text('select * from restaurant where "RID"=:rid')
@@ -100,21 +105,48 @@ def get_restaurant_detail(rid):
     items = result.items()
     data = {item[0]:item[1] for item in items}
 
-    sql = text('select "PID", title from post where "RID"=:rid')
+    sql = text('select "PID", title, time from post where "RID"=:rid')
     result = db.engine.execute(sql, rid=rid)
-    post_list = [(row[0], row[1]) for row in result]
+    post_list = [(row[0], row[1],row[2]) for row in result]
     data['posts'] = post_list
     return create_response(data, status=200)
 
+# get post detail information
 @app.route(POST_DETAIL_URL)
 def get_post_detail(pid):
     sql = text('select * from post where "PID"=:pid')
-    result = db.engine.execute(sql, rid=rid).first()
+    result = db.engine.execute(sql, pid=pid).first()
     if result is None:
         return create_response(message='restaurant not exist', status=233)
     items = result.items()
     data = {item[0]:item[1] for item in items}
     return create_response(data, status=200)
-# @app.route(NEW_POST_URL)
-# def create_post():
 
+# create a new post and a chatroom associated with it, return pid
+@app.route(NEW_POST_URL, methods=['POST'])
+def create_post():
+    request_json = request.get_json()
+    
+    data = {}
+    try:
+        data['RID'] = int(request_json['RID'])
+        data['UID'] = int(request_json['UID'])
+        data['title'] = request_json['title']
+        data['time'] = datetime.strptime(request_json['time'], '%Y-%m-%d %H:%M')
+    except Exception as e:
+        return create_response(message=str(e),status=233)
+
+    # create a new chatroom and get back cid
+    sql = text('insert into chatroom(messages) \
+            values (:messages) returning "CID"')
+    result = db.engine.execute(sql, messages=[]).first()
+    cid = result.items()[0][1]
+
+    # create a new post and get back pid
+    sql = text('insert into post(time, title, "UID", "RID", "CID", accompanies) \
+            values (:time, :title, :uid, :rid, :cid, :accompanies) returning "PID"')
+    result = db.engine.execute(sql, time=data['time'], title=data['title'], uid=data['UID'], rid=data['RID'], cid=cid, accompanies=[]).first()
+    pid = result.items()[0][1]
+
+    # return the pid
+    return create_response({"PID":pid}, status=200)

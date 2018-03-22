@@ -87,8 +87,8 @@ class Post(db.Model):
     time = db.Column(db.DateTime)
     title = db.Column(db.String(50))
     PID = db.Column(db.Integer, unique=True, primary_key=True, nullable=False)
-    UID = db.Column(db.Integer, db.ForeignKey('mealpat_user.UID', ondelete='CASCADE'), primary_key=True, nullable=False)
-    RID = db.Column(db.Integer, db.ForeignKey('restaurant.RID', ondelete='CASCADE'), primary_key=True, nullable=False)
+    UID = db.Column(db.Integer, db.ForeignKey('mealpat_user.UID', ondelete='CASCADE'), nullable=False)
+    RID = db.Column(db.Integer, db.ForeignKey('restaurant.RID', ondelete='CASCADE'), nullable=False)
     CID = db.Column(db.Integer, db.ForeignKey('chatroom.CID', ondelete='CASCADE'), unique=True, nullable=False)
     # identified by UIDs
     accompanies = db.Column(ARRAY(db.Integer))
