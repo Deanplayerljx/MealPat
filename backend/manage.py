@@ -39,6 +39,38 @@ manager.add_command('db', MigrateCommand)
 
 @manager.command
 def runserver():
+<<<<<<< HEAD
+=======
+    for address in DEFAULT_LOCATION:
+        bussinesses = search(API_KEY,address).get('businesses')
+        for each_buss in bussinesses:
+            curr_addr = ""
+            for i in each_buss['location']['display_address']:
+                curr_addr += i + ','
+            curr_data = Restaurant.query.all()
+            exist = False
+            for k in curr_data:
+                if(curr_addr == k.address):
+                    exist = True
+                    break
+            if(not exist):
+                curr_category = []
+                for i in each_buss['categories']:
+                    curr_category.append(i['title'])
+                json_res = {
+                    'name' : each_buss['name'],
+                    'address' : curr_addr,
+                    'phonenumber' : each_buss['phone'],
+                    'categories' : curr_category,
+                    'rating' : each_buss['rating'],
+                    'imageURL' : each_buss['image_url'],
+                    'price' : each_buss['price']
+                }
+                json_object = Restaurant(json_res)
+                # print(type(json_object))
+                db.session.add(json_object)
+                db.session.commit()
+>>>>>>> 813713da4c571fbdbc8243f799d655ae0e1a0c2a
     app.run(debug=True, host='0.0.0.0', port=8000)
 
 
@@ -63,6 +95,7 @@ def recreate_db():
     """
     db.drop_all()
     db.create_all()
+<<<<<<< HEAD
     addr_set = set()
     for address in DEFAULT_LOCATION:
         bussinesses = search(API_KEY,address).get('businesses')
@@ -87,6 +120,18 @@ def recreate_db():
                 db.session.add(json_object)
                 addr_set.add(curr_addr)
         db.session.commit()
+=======
+    # t = User(1234,'wew','ww','wewe','wew','wewe')
+    # db.session.add(t)
+    # db.session.commit()
+    ChatRoom_data = {'messages':['hi','holla']}
+    t3 = ChatRoom(ChatRoom_data)
+    db.session.add(t3)
+    ChatRoom_data = {'messages':['hiii','holla']}
+    t4 = ChatRoom(ChatRoom_data)
+    db.session.add(t4)
+    db.session.commit()
+>>>>>>> 813713da4c571fbdbc8243f799d655ae0e1a0c2a
 
 
 def request(host, path, api_key, url_params=None):

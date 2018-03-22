@@ -12,7 +12,7 @@ class User(db.Model):
     UID = db.Column(db.Integer, unique=True, primary_key=True, nullable=False)
     phonenumber = db.Column(db.String(12))
     interest = db.Column(ARRAY(db.String(20)))
-    name = db.Column(db.String(20), nullable=False)
+    name = db.Column(db.String(20), unique=True, nullable=False)
     password = db.Column(db.String(20), nullable=False)
     gender = db.Column(db.String(6))
     address = db.Column(db.String(50))
@@ -73,10 +73,10 @@ class ChatRoom(db.Model):
     __tablename__ = "chatroom"
 
     CID = db.Column(db.Integer, unique=True, primary_key=True)
-    Messages = db.Column(ARRAY(db.String(100)))
+    messages = db.Column(ARRAY(db.String(100)))
 
     def __init__(self, data):
-            self.Messages = data['Messages']
+            self.messages = data['messages']
 
     def __repr__(self):
         return '<chatroom {}>'.format(self.CID)
@@ -85,6 +85,7 @@ class Post(db.Model):
     """Post(UID, RID, time, accompanies,CID)"""
     __tablename__ = "post"
     time = db.Column(db.DateTime)
+    title = db.Column(db.String(50))
     PID = db.Column(db.Integer, unique=True, primary_key=True, nullable=False)
     UID = db.Column(db.Integer, db.ForeignKey('mealpat_user.UID', ondelete='CASCADE'), primary_key=True, nullable=False)
     RID = db.Column(db.Integer, db.ForeignKey('restaurant.RID', ondelete='CASCADE'), primary_key=True, nullable=False)
@@ -94,6 +95,7 @@ class Post(db.Model):
 
 
     def __init__(self, data):
+            self.title = data['title']
             self.time = data['time']
             self.UID = data['UID']
             self.RID = data['RID']
