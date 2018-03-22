@@ -47,21 +47,23 @@ class Restaurant(db.Model):
     __tablename__ = "restaurant"
 
     RID = db.Column(db.Integer, unique=True, primary_key=True, nullable=False)
-    name = db.Column(db.String(20), nullable=False)
+    name = db.Column(db.String(50), nullable=False)
     address = db.Column(db.String(50), nullable=False)
+    phonenumber = db.Column(db.String(12),nullable=True)
+    categories = db.Column(ARRAY(db.String(50)))
     rating = db.Column(db.Float)
     imageURL = db.Column(db.String(100))
-    price = db.Column(db.Integer)
-    openningTime = db.Column(db.String(50))
+    price = db.Column(db.String(10))
 
 
     def __init__(self, data):
             self.name = data['name']
             self.address = data['address']
+            self.phonenumber = data['phonenumber']
+            self.categories = data['categories']
             self.rating = data['rating']
             self.imageURL = data['imageURL']
             self.price = data['price']
-            self.openningTime = data['openningTime']
 
     def __repr__(self):
         return '<restaurant {}>'.format(self.name)
@@ -83,12 +85,13 @@ class Post(db.Model):
     """Post(UID, RID, time, accompanies,CID)"""
     __tablename__ = "post"
     time = db.Column(db.DateTime)
+    PID = db.Column(db.Integer, unique=True, primary_key=True, nullable=False)
     UID = db.Column(db.Integer, db.ForeignKey('mealpat_user.UID', ondelete='CASCADE'), primary_key=True, nullable=False)
     RID = db.Column(db.Integer, db.ForeignKey('restaurant.RID', ondelete='CASCADE'), primary_key=True, nullable=False)
     CID = db.Column(db.Integer, db.ForeignKey('chatroom.CID', ondelete='CASCADE'), unique=True, nullable=False)
     # identified by UIDs
     accompanies = db.Column(ARRAY(db.Integer))
-    
+
 
     def __init__(self, data):
             self.time = data['time']
@@ -108,7 +111,7 @@ class History(db.Model):
     UID = db.Column(db.Integer, db.ForeignKey('mealpat_user.UID', ondelete='CASCADE',onupdate='CASCADE'), primary_key=True, nullable=False)
     RID = db.Column(db.Integer, db.ForeignKey('restaurant.RID', ondelete='CASCADE', onupdate='CASCADE'), primary_key=True, nullable=False)
     accompanies = db.Column(ARRAY(db.Integer))
-    rating = db.Column(db.Integer)
+    rating = db.Column(db.Float)
 
     def __init__(self, data):
             self.time = data['time']
