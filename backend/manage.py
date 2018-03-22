@@ -46,7 +46,7 @@ def runserver():
             for i in each_buss['location']['display_address']:
                 curr_addr += i + ','
             curr_data = Restaurant.query.all()
-            print(curr_data)
+            # print(curr_data)
             exist = False
             for k in curr_data:
                 if(curr_addr == k.address):
@@ -66,7 +66,7 @@ def runserver():
                     'price' : each_buss['price']
                 }
                 json_object = Restaurant(json_res)
-                print(type(json_object))
+                # print(type(json_object))
                 db.session.add(json_object)
                 db.session.commit()
     app.run(debug=True, host='0.0.0.0', port=8000)
@@ -96,10 +96,10 @@ def recreate_db():
     # t = User(1234,'wew','ww','wewe','wew','wewe')
     # db.session.add(t)
     # db.session.commit()
-    ChatRoom_data = {'Messages':['hi','holla']}
+    ChatRoom_data = {'messages':['hi','holla']}
     t3 = ChatRoom(ChatRoom_data)
     db.session.add(t3)
-    ChatRoom_data = {'Messages':['hiii','holla']}
+    ChatRoom_data = {'messages':['hiii','holla']}
     t4 = ChatRoom(ChatRoom_data)
     db.session.add(t4)
     db.session.commit()
