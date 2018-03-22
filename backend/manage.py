@@ -46,7 +46,6 @@ def runserver():
             for i in each_buss['location']['display_address']:
                 curr_addr += i + ','
             curr_data = Restaurant.query.all()
-            # print(curr_data)
             exist = False
             for k in curr_data:
                 if(curr_addr == k.address):
