@@ -7,6 +7,7 @@ const HomePage = () => (
       Welcome to the MealPat app, sign in to enjoy a wonderful meal experience.
     </h1>
     <Link to="/login">login</Link>
+    <text> or </text>
     <Link to="/signup">SignUp</Link>
   </div>
 )
