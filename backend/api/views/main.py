@@ -54,7 +54,7 @@ def sign_up():
             data['interest'] = request_json['interest'].split(',')
         
     except:
-        return create_response(message='missing required components',status=233)
+        return create_response(message='missing required components',status=411)
     try:
         sql = text('insert into mealpat_user(phonenumber, interest, name, password, gender, address) \
             values (:phonenum, :interest, :name, :password, :gender, :address)')
@@ -76,13 +76,13 @@ def log_in():
         username = args['name']
         password = args['password']
     except:
-        return create_response(message='missing required components',status=233)
+        return create_response(message='missing required components',status=411)
 
     sql = text('select "UID" from mealpat_user where name=:name and password=:password')
     result = db.engine.execute(sql, name=username, password=password).first()
     # user = User.query.filter_by(name = username, password = password).first()
     if result is None:
-        return create_response(message='user not exist', status=233)
+        return create_response(message='user not exist', status=411)
     else:
         return create_response({'UID':result[0]}, status=200)
 
@@ -102,7 +102,7 @@ def get_restaurant_detail(rid):
     sql = text('select * from restaurant where "RID"=:rid')
     result = db.engine.execute(sql, rid=rid).first()
     if result is None:
-        return create_response(message='restaurant not exist', status=233)
+        return create_response(message='restaurant not exist', status=411)
     items = result.items()
     data = {item[0]:item[1] for item in items}
 
@@ -118,7 +118,7 @@ def get_post_detail(pid):
     sql = text('select * from post where "PID"=:pid')
     result = db.engine.execute(sql, pid=pid).first()
     if result is None:
-        return create_response(message='restaurant not exist', status=233)
+        return create_response(message='restaurant not exist', status=411)
     items = result.items()
     data = {item[0]:item[1] for item in items}
     return create_response(data, status=200)
@@ -135,7 +135,7 @@ def create_post():
         data['title'] = request_json['title']
         data['time'] = datetime.strptime(request_json['time'], '%Y-%m-%d %H:%M')
     except Exception as e:
-        return create_response(message=str(e),status=233)
+        return create_response(message=str(e),status=411)
 
     # create a new chatroom and get back cid
     sql = text('insert into chatroom(messages) \
@@ -160,14 +160,14 @@ def join_post():
         data['PID'] = int(request_json['PID'])
         data['UID'] = int(request_json['UID'])
     except:
-        return create_response(message='missing required components',status=233)
+        return create_response(message='missing required components',status=411)
 
     sql = text('select accompanies from post where "PID"=:pid')
     result = db.engine.execute(sql, pid=data['PID']).first()
     accompanies = result.items()[0][1]
     print (accompanies)
     if data['PID'] in accompanies:
-        return create_response(message='user have already joined the post', status=241)
+        return create_response(message='user have already joined the post', status=412)
     accompanies.append(data['PID'])
 
     sql = text('update post set accompanies=:accompanies where "PID"=:pid')
