@@ -1,5 +1,5 @@
 import React from 'react'
-import { Form, Button, Dropdown } from 'semantic-ui-react'
+import { Form, Button } from 'semantic-ui-react'
 import InlineError from '../messages/InlineError'
 import PropTypes from 'prop-types'
 import axios from 'axios'
