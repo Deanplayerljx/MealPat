@@ -15,6 +15,7 @@ RESTAURANT_DETAIL_URL = '/restaurant/<int:rid>'
 NEW_POST_URL = '/new_post'
 POST_DETAIL_URL = '/post/<int:pid>'
 JOIN_POST_URL = '/join_post'
+DELETE_POST_URL = '/delete_post'
 # function that is called when you visit /
 @app.route('/')
 def index():
@@ -173,3 +174,28 @@ def join_post():
     sql = text('update post set accompanies=:accompanies where "PID"=:pid')
     result = db.engine.execute(sql, pid=data['PID'], accompanies=accompanies)
     return create_response(message='join succeed', status=200)
+
+@app.route(DELETE_POST_URL, methods=['DELETE'])
+def delete_post():
+    request_json = request.get_json()
+    data = {}
+    try:
+        data['PID'] = int(request_json['PID'])
+        data['UID'] = int(request_json['UID'])
+    except:
+        return create_response(message='missing required components',status=411)
+
+    # delete post
+    sql = text('delete from post where "PID"=:pid and "UID"=:uid returning "CID"')
+    result = db.engine.execute(sql, pid=data['PID'], uid=data['UID'])
+    
+    print (result.rowcount) 
+    if result.rowcount == 0:
+        return create_response(message='user does not own the post', status=412)
+
+    # delete chatroom
+
+    cid = result.first().items()[0][1]
+    sql = text('delete from chatroom where "CID"=:cid')
+    result = db.engine.execute(sql, cid=cid)
+    return create_response(message='delete succeed', status=200)
