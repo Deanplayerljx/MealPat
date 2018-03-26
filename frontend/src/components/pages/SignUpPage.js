@@ -2,14 +2,13 @@ import React from 'react'
 import { Link } from 'react-router-dom'
 import SignupForm from '../forms/SignupForm'
 import PropTypes from 'prop-types'
+import axios from 'axios'
 
 class SignUpPage extends React.Component {
   submit = data => {
-    // this.props.signup(data).then(() =>
-
-    this.props.history.push('/Search')
-    console.log(data)
+    this.props.history.push('/login')
   }
+
   render() {
     return (
       <div>
@@ -23,8 +22,7 @@ class SignUpPage extends React.Component {
 SignUpPage.propTypes = {
   history: PropTypes.shape({
     push: PropTypes.func.isRequired
-  }).isRequired,
-  signup: PropTypes.func.isRequired
+  }).isRequired
 }
 
 export default SignUpPage

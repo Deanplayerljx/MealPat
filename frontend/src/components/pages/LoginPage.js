@@ -1,11 +1,25 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
 import LoginForm from '../forms/LoginForm'
+import axios from 'axios'
 
 class LoginPage extends React.Component {
   submit = data => {
     console.log(data)
-    this.props.history.push('/search')
+    var self = this
+    axios
+      .get('http://127.0.0.1:8000/log_in', { params: data })
+      .then(function(response) {
+        console.log(response)
+        console.log(response.data.result)
+        self.props.history.push({
+          pathname: '/search',
+          state: response.data.result
+        })
+      })
+      .catch(function(error) {
+        console.log(error)
+      })
   }
   render() {
     return (

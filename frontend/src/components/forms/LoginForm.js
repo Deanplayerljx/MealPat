@@ -6,7 +6,7 @@ import PropTypes from 'prop-types'
 class LoginForm extends React.Component {
   state = {
     data: {
-      UID: '',
+      name: '',
       password: ''
     },
     loading: false,
@@ -28,7 +28,7 @@ class LoginForm extends React.Component {
 
   validate = data => {
     const errors = {}
-    if (!data.UID) errors.UID = 'Invalid usrId'
+    if (!data.name) errors.name = 'Invalid usrname'
     if (!data.password) errors.password = "Can't be blank"
     return errors
   }
@@ -38,16 +38,16 @@ class LoginForm extends React.Component {
 
     return (
       <Form onSubmit={this.onSubmit}>
-        <Form.Field error={!!errors.UID}>
+        <Form.Field error={!!errors.name}>
           <label>UserID</label>
           <input
             type="text"
-            id="UID"
-            name="UID"
-            value={data.UID}
+            id="name"
+            name="name"
+            value={data.name}
             onChange={this.onChange}
           />
-          {errors.UID && <InlineError text={errors.UID} />}
+          {errors.name && <InlineError text={errors.name} />}
         </Form.Field>
         <Form.Field error={!!errors.password}>
           <label>Password</label>
