@@ -2,17 +2,37 @@ import React from 'react'
 import { Link } from 'react-router-dom'
 import LoginForm from '../forms/LoginForm'
 import { Search, Grid, Header } from 'semantic-ui-react'
+import axios from 'axios'
 
 class SearchPage extends React.Component {
   state = {
+    UID: '',
     isLoading: false,
     results: [],
-    value: ''
+    value: '',
+    rid: '',
+    name_address_rid: []
   }
+  constructor(props) {
+    super(props)
+    this.state.UID = props.location.state.UID
+    var self = this
+    axios
+      .get('http://127.0.0.1:8000/search')
+      .then(function(response) {
+        console.log(response)
+        self.state.name_address_rid = response.data.result.name_address_rid
+      })
+      .catch(function(error) {
+        console.log(error)
+      })
+  }
+
   submit = data => {
     console.log(data)
   }
   componentWillMount() {
+    //  this.setState({ UID: this.props.location.state.UID })
     this.resetComponent()
   }
 
@@ -24,6 +44,7 @@ class SearchPage extends React.Component {
     this.setState({ value: result.title })
   }
   handleSearchChange = (e, { value }) => {
+    console.log(this.state)
     this.setState({ isLoading: true, value })
   }
 
@@ -32,17 +53,16 @@ class SearchPage extends React.Component {
     return (
       <div>
         <h1> Start search now!</h1>
-        <Grid>
-          <Grid.Column width={8}>
-            <Search
-              loading={isLoading}
-              onResultSelect={this.handleResultSelect}
-              onSearchChange={this.handleSearchChange}
-              results={results}
-              value={value}
-              {...this.props}
-            />
-          </Grid.Column>
+        <Grid columns={16}>
+          <Search
+            fluid
+            loading={isLoading}
+            onResultSelect={this.handleResultSelect}
+            onSearchChange={this.handleSearchChange}
+            results={results}
+            value={value}
+            {...this.props}
+          />
         </Grid>
       </div>
     )

@@ -2,16 +2,11 @@ import React from 'react'
 import { Form, Button, Dropdown } from 'semantic-ui-react'
 import InlineError from '../messages/InlineError'
 import PropTypes from 'prop-types'
-
-const options = [
-  { key: 'm', text: 'Male', value: 'male' },
-  { key: 'f', text: 'Female', value: 'female' }
-]
+import axios from 'axios'
 
 class SignupForm extends React.Component {
   state = {
     data: {
-      UID: '',
       phonenumber: '',
       interest: '',
       name: '',
@@ -20,16 +15,14 @@ class SignupForm extends React.Component {
       address: ''
     },
     loading: false,
-    errors: {}
+    errors: {},
+    overall: ''
   }
 
   onChange = e => {
-    console.log(this.state.data)
-    console.log(e.target.value)
     this.setState({
       data: { ...this.state.data, [e.target.name]: e.target.value }
     })
-    console.log(this.state.data)
   }
 
   onSubmit = e => {
@@ -37,15 +30,30 @@ class SignupForm extends React.Component {
     const errors = this.validate(this.state.data)
     this.setState({ errors })
     if (Object.keys(errors).length === 0) {
+      var self = this
       this.setState({ loading: true })
-      this.props.submit(this.state.data)
-      //.catch(err => this.setState({errors:err.response.data.errors,loading = false}))
+      axios
+        .post(`http://127.0.0.1:8000/sign_up`, this.state.data)
+        .then(function(response) {
+          self.props.submit()
+        })
+        .catch(function(error) {
+          const errors = {}
+          errors.name = error.response.data.message
+          self.setState({
+            errors,
+            loading: false
+          })
+        })
     }
+    console.log(this.state)
   }
+  //  this.props.submit(this.state.data)
+  //.catch(err => this.setState({errors:err.response.data.errors,loading = false}))
 
   validate = data => {
     const errors = {}
-    if (!data.UID) errors.UID = 'Invalid username'
+    if (!data.name) errors.name = 'Invalid username'
     if (!data.password) errors.password = "Can't be blank"
     if (!data.gender) errors.gender = "Can't be blank"
     return errors
@@ -56,17 +64,17 @@ class SignupForm extends React.Component {
     return (
       <Form onSubmit={this.onSubmit} loading={loading} size="big">
         <Form.Group width="equal">
-          <Form.Field error={!!errors.UID}>
-            <label>UserID</label>
+          <Form.Field error={!!errors.name}>
+            <label>Username</label>
             <input
               type="text"
-              id="UID"
-              name="UID"
-              placeholder="For login purpose"
-              value={data.UID}
+              id="name"
+              name="name"
+              placeholder="Social name"
+              value={data.name}
               onChange={this.onChange}
             />
-            {errors.UID && <InlineError text={errors.UID} />}
+            {errors.name && <InlineError text={errors.name} />}
           </Form.Field>
           <Form.Field error={!!errors.password}>
             <label>Password</label>
@@ -93,19 +101,7 @@ class SignupForm extends React.Component {
             {errors.gender && <InlineError text={errors.gender} />}
           </Form.Field>
         </Form.Group>
-        <Form.Group width="equal">
-          <Form.Field error={!!errors.name}>
-            <label>NickName</label>
-            <input
-              type="text"
-              id="NickName"
-              name="name"
-              placeholder="Social name"
-              value={data.name}
-              onChange={this.onChange}
-            />
-            {errors.name && <InlineError text={errors.name} />}
-          </Form.Field>
+        <Form.Group>
           <Form.Field error={!!errors.phonenumber}>
             <label>Phonenumber</label>
             <input
@@ -118,19 +114,19 @@ class SignupForm extends React.Component {
             />
             {errors.phonenumber && <InlineError text={errors.phonenumber} />}
           </Form.Field>
+          <Form.Field error={!!errors.address}>
+            <label>Address</label>
+            <input
+              type="text"
+              id="address"
+              name="address"
+              placeholder="address"
+              value={data.address}
+              onChange={this.onChange}
+            />
+            {errors.address && <InlineError text={errors.address} />}
+          </Form.Field>
         </Form.Group>
-        <Form.Field error={!!errors.address}>
-          <label>Address</label>
-          <input
-            type="text"
-            id="address"
-            name="address"
-            placeholder="address"
-            value={data.address}
-            onChange={this.onChange}
-          />
-          {errors.address && <InlineError text={errors.address} />}
-        </Form.Field>
         <Form.Field error={!!errors.interest}>
           <label>interest</label>
           <input
@@ -143,7 +139,6 @@ class SignupForm extends React.Component {
           />
           {errors.interest && <InlineError text={errors.interest} />}
         </Form.Field>
-
         <Button primary>Sign Up</Button>
       </Form>
     )
