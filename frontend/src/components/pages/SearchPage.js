@@ -35,7 +35,7 @@ class SearchPage extends React.Component {
       .get('http://127.0.0.1:8000/restaurant/' + data)
       .then(function(response) {
         response.data.result.UID = self.state.UID
-        response.data.result.name = self.state.name
+        response.data.result.usrname = self.state.usrname
         console.log(response.data.result)
         self.props.history.push({
           pathname: '/detail',
