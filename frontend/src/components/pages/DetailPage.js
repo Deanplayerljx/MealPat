@@ -20,15 +20,17 @@ class DetailPage extends React.Component {
     ],
     price: '',
     rating: '',
-    errors: ''
+    errors: '',
+    posttitle: '',
+    posttime: ''
   }
   //  <img src={this.state.imageURL} />
   constructor(props) {
     console.log(props)
     super(props)
     this.state = props.location.state
-    this.state.posttitle = 'helloworld'
-    this.state.posttime = '2017-05-30 05:12'
+    this.state.posttitle = ''
+    this.state.posttime = ''
     console.log(this.state)
     //  this.handleJoin = this.handleJoin.bind(this)
   }
@@ -78,6 +80,13 @@ class DetailPage extends React.Component {
       })
   }
 
+  onChange = e => {
+    this.setState({
+      ...this.state.data,
+      [e.target.name]: e.target.value
+    })
+  }
+
   handleCreate = e => {
     console.log('handleCreate')
     const self = this
@@ -93,7 +102,11 @@ class DetailPage extends React.Component {
         console.log(response)
       })
       .catch(function(error) {
-        console.log(error.response)
+        if (error.repomse) {
+          alert(error.response.data.message)
+          console.log(error.response.data.message)
+        }
+        console.log(error)
       })
   }
   render() {
@@ -102,6 +115,17 @@ class DetailPage extends React.Component {
     return (
       <div>
         <h1>{this.state.name}</h1>
+        <img src={this.state.imageURL} width="400" height="300" />
+        <br />
+        <span>Address:&nbsp; {this.state.address}</span>
+        <br />
+        <span>Categories:&nbsp; {this.state.categories}</span>
+        <br />
+        <span>Phonenumber:&nbsp; {this.state.phonenumber}</span>
+        <br />
+        <span>Price:&nbsp; {this.state.price}</span>
+        <br />
+        <span>Rating:&nbsp; {this.state.rating}</span>
         <ul>
           {postlist.map((postlist, index) => {
             return (
@@ -125,9 +149,23 @@ class DetailPage extends React.Component {
             )
           })}
         </ul>
-        <Button secondary onClick={this.handleCreate}>
-          Add New One
-        </Button>
+        <Form onSubmit={this.handleCreate}>
+          <Form.Group widths="equal">
+            <Form.Input
+              placeholder="TITLE"
+              name="posttitle"
+              value={this.state.posttitle}
+              onChange={this.onChange}
+            />
+            <Form.Input
+              placeholder="TimeInFormat: YYYY-MM-DD HH:MM"
+              name="posttime"
+              value={this.state.posttime}
+              onChange={this.onChange}
+            />
+            <Button>AddNew</Button>
+          </Form.Group>
+        </Form>
       </div>
     )
   }
