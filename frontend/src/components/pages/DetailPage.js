@@ -67,6 +67,13 @@ class DetailPage extends React.Component {
     axios
       .delete(`http://127.0.0.1:8000/delete_post`, { data })
       .then(function(response) {
+        var newpost = []
+        for (var i = 0; i < self.state.posts.length; i++) {
+          if (i !== index) {
+            newpost.push(self.state.posts[i])
+          }
+        }
+        self.setState({ posts: newpost })
         console.log(response)
       })
       .catch(function(error) {
