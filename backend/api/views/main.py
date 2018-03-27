@@ -163,13 +163,19 @@ def join_post():
     except:
         return create_response(message='missing required components',status=411)
 
-    sql = text('select accompanies from post where "PID"=:pid')
+    sql = text('select accompanies, "UID" from post where "PID"=:pid')
     result = db.engine.execute(sql, pid=data['PID']).first()
     accompanies = result.items()[0][1]
+    post_owner = result.items()[1][1]
     print (accompanies)
-    if data['PID'] in accompanies:
-        return create_response(message='user have already joined the post', status=412)
-    accompanies.append(data['PID'])
+
+    if post_owner == data['UID']:
+        return create_response(message='you are the owner', status=411)
+    
+    if data['UID'] in accompanies:
+        return create_response(message='user have already joined the post', status=411)
+
+    accompanies.append(data['UID'])
 
     sql = text('update post set accompanies=:accompanies where "PID"=:pid')
     result = db.engine.execute(sql, pid=data['PID'], accompanies=accompanies)
@@ -191,7 +197,7 @@ def delete_post():
     
     print (result.rowcount) 
     if result.rowcount == 0:
-        return create_response(message='user does not own the post', status=412)
+        return create_response(message='user does not own the post', status=411)
 
     # delete chatroom
 
