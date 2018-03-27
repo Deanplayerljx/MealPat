@@ -27,6 +27,9 @@ class DetailPage extends React.Component {
     console.log(props)
     super(props)
     this.state = props.location.state
+    this.state.posttitle = 'helloworld'
+    this.state.posttime = '2017-05-30 05:12'
+    console.log(this.state)
     //  this.handleJoin = this.handleJoin.bind(this)
   }
   handleJoin = index => {
@@ -74,6 +77,25 @@ class DetailPage extends React.Component {
         // })
       })
   }
+
+  handleCreate = e => {
+    console.log('handleCreate')
+    const self = this
+    var data = {}
+    data.UID = this.state.UID
+    data.RID = this.state.RID
+    data.title = this.state.posttitle
+    data.time = this.state.posttime
+    console.log(data)
+    axios
+      .post(`http://127.0.0.1:8000/new_post`, data)
+      .then(function(response) {
+        console.log(response)
+      })
+      .catch(function(error) {
+        console.log(error.response)
+      })
+  }
   render() {
     console.log(this.state)
     var postlist = this.state.posts
@@ -103,6 +125,9 @@ class DetailPage extends React.Component {
             )
           })}
         </ul>
+        <Button secondary onClick={this.handleCreate}>
+          Add New One
+        </Button>
       </div>
     )
   }
