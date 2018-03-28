@@ -106,6 +106,13 @@ class DetailPage extends React.Component {
     axios
       .post(`http://127.0.0.1:8000/new_post`, data)
       .then(function(response) {
+        var newpost = self.state.posts
+        newpost.push([1000, data.title, data.time])
+        self.setState({ posts: newpost })
+        // newpost.push(1000)
+        // newpost.push(data.title)
+        // newpost.push(data.time)
+
         console.log(response)
       })
       .catch(function(error) {
