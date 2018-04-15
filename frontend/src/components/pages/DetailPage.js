@@ -34,26 +34,24 @@ class DetailPage extends React.Component {
     console.log(this.state)
     //  this.handleJoin = this.handleJoin.bind(this)
   }
-  handleJoin = index => {
-    console.log('handlejoin')
+  handleDetail = index => {
+    console.log('handledetail')
     const self = this
-    var data = {}
-    data.UID = this.state.UID
-    data.PID = this.state.posts[index][0]
-    console.log(data)
     axios
-      .put(`http://127.0.0.1:8000/join_post`, data)
+      .get('http://127.0.0.1:8000/post/' + self.state.posts[index][0])
       .then(function(response) {
-        console.log(response)
+        var data = {}
+        data = response.data.result
+        data.CurrUID = self.state.UID
+        data.usrname = self.state.usrname
+        console.log(data)
+        self.props.history.push({
+          pathname: 'postdetail',
+          state: data
+        })
       })
       .catch(function(error) {
-        console.log(error.response)
-        // const errors = {}
-        // errors.name = error.response.data.message
-        // self.setState({
-        //   errors
-        //   //  loading: false
-        // })
+        console.log(error)
       })
   }
 
@@ -78,12 +76,10 @@ class DetailPage extends React.Component {
       })
       .catch(function(error) {
         console.log(error.response)
-        // const errors = {}
-        // errors.name = error.response.data.message
-        // self.setState({
-        //   errors
-        //   //  loading: false
-        // })
+        if (error.response) {
+          alert(error.response.data.message)
+          console.log(error.response.data.message)
+        }
       })
   }
 
@@ -116,7 +112,7 @@ class DetailPage extends React.Component {
         console.log(response)
       })
       .catch(function(error) {
-        if (error.repomse) {
+        if (error.response) {
           alert(error.response.data.message)
           console.log(error.response.data.message)
         }
@@ -148,9 +144,9 @@ class DetailPage extends React.Component {
                 <Button
                   positive
                   size="tiny"
-                  onClick={this.handleJoin.bind(this, index)}
+                  onClick={this.handleDetail.bind(this, index)}
                 >
-                  Join!
+                  Get Detail
                 </Button>
                 <Button
                   negative

@@ -22,7 +22,7 @@ class SearchPage extends React.Component {
       .then(function(response) {
         console.log(response)
         self.state.name_address_rid = response.data.result.name_address_rid
-        //  self.state.results = response.data.result.name_address_rid
+        console.log(self)
       })
       .catch(function(error) {
         console.log(error)

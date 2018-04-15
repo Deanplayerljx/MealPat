@@ -7,6 +7,7 @@ import SignUpPage from './components/pages/SignUpPage'
 import SearchPage from './components/pages/SearchPage'
 import DetailPage from './components/pages/DetailPage'
 import Chatroom from './components/pages/Chatroom'
+import PostdetailPage from './components/pages/PostdetailPage'
 
 const App = () => (
   <div className="ui container">
@@ -16,6 +17,7 @@ const App = () => (
     <Route path="/search" exact component={SearchPage} />
     <Route path="/detail" exact component={DetailPage} />
     <Route path="/chatroom" exact component={Chatroom} />
+    <Route path="/postdetail" exact component={PostdetailPage} />
   </div>
 )
 

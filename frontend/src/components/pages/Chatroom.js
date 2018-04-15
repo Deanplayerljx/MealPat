@@ -3,14 +3,19 @@ import { Link } from 'react-router-dom'
 import LoginForm from '../forms/LoginForm'
 
 class Chatroom extends React.Component {
-  submit = data => {
-    console.log(data)
+  state = {}
+  constructor(props) {
+    console.log(props)
+    super(props)
+    this.state = props.location.state
+    //  this.handleJoin = this.handleJoin.bind(this)
   }
+
   render() {
+    console.log(this.state)
     return (
       <div>
-        <h1> SignUp Page</h1>
-        <LoginForm submit={this.submit} />
+        <h1> Chatroom</h1>
       </div>
     )
   }
