@@ -8,11 +8,13 @@ from sqlalchemy import text
 from datetime import datetime
 import time
 import atexit
+import requests
 from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.triggers.interval import IntervalTrigger
 
 mod = Blueprint('main', __name__)
 
+map_api_key = 'AIzaSyB1KLfyE7CWowUxNFhGaHdR496U9RwX_ek'
 SIGN_UP_URL = '/sign_up'
 LOG_IN_URL = '/log_in'
 SEARCH_PAGE_URL = '/search'
@@ -67,33 +69,40 @@ def sign_up():
     try:
         data['name'] = request_json['name']
         data['password'] = request_json['password']
-
-        if request_json['address'] == '':
-            data['address'] = None
-        else:
-            data['address'] = request_json['address']
-
-        if request_json['gender'] == '':
-            data['gender'] = None
-        else:
-            data['gender'] = request_json['gender']
-
-        if request_json['phonenumber'] == '':
-            data['phonenumber'] = None
-        else:
-            data['phonenumber'] = request_json['phonenumber']
-
-        if request_json['interest'] == '':
-            data['interest'] = []
-        else:
-            data['interest'] = request_json['interest'].split(',')
-        
     except:
         return create_response(message='missing required components',status=411)
+    if request_json['address'] == '':
+        data['address'] = None
+        data['lati'] = None
+        data['longi'] = None
+    else:
+        data['address'] = request_json['address']
+        map_url = 'https://maps.googleapis.com/maps/api/geocode/json?address=' + request_json['address'] + '&' + 'key=' + map_api_key
+        response = requests.request('GET', map_url)
+        json_object = response.json()
+        print(json_object)
+        data['lati'] = json_object['results'][0]['geometry']['location']['lat']
+        data['longi'] = json_object['results'][0]['geometry']['location']['lng']
+
+    if request_json['gender'] == '':
+        data['gender'] = None
+    else:
+        data['gender'] = request_json['gender']
+
+    if request_json['phonenumber'] == '':
+        data['phonenumber'] = None
+    else:
+        data['phonenumber'] = request_json['phonenumber']
+
+    if request_json['interest'] == '':
+        data['interest'] = []
+    else:
+        data['interest'] = request_json['interest'].split(',')
     try:
-        sql = text('insert into mealpat_user(phonenumber, interest, name, password, gender, address) \
-            values (:phonenum, :interest, :name, :password, :gender, :address)')
-        db.engine.execute(sql, phonenum=data['phonenumber'], interest=data['interest'], name=data['name'], password=data['password'], gender=data['gender'], address=data['address'])
+        sql = text('insert into mealpat_user(phonenumber, interest, name, password, gender, address, lati, longi) \
+            values (:phonenum, :interest, :name, :password, :gender, :address, :lati, :longi)')
+        db.engine.execute(sql, phonenum=data['phonenumber'], interest=data['interest'],name=data['name'],
+        password=data['password'], gender=data['gender'], address=data['address'], lati = data['lati'], longi = data['longi'])
         # new_user = User(data)
         # db.session.add(new_user)
         # db.session.commit()
@@ -187,7 +196,7 @@ def get_user_info():
 @app.route(NEW_POST_URL, methods=['POST'])
 def create_post():
     request_json = request.get_json()
-    
+
     data = {}
     try:
         data['RID'] = int(request_json['RID'])
@@ -230,7 +239,7 @@ def join_post():
 
     if post_owner == data['UID']:
         return create_response(message='you are the owner', status=411)
-    
+
     if data['UID'] in accompanies:
         return create_response(message='user have already joined the post', status=411)
 
@@ -253,8 +262,8 @@ def delete_post():
     # delete post
     sql = text('delete from post where "PID"=:pid and "UID"=:uid returning "CID"')
     result = db.engine.execute(sql, pid=data['PID'], uid=data['UID'])
-    
-    print (result.rowcount) 
+
+    print (result.rowcount)
     if result.rowcount == 0:
         return create_response(message='user does not own the post', status=411)
 

@@ -26,6 +26,7 @@ except ImportError:
     from urllib import quote
     from urllib import urlencode
 
+map_api_key = 'AIzaSyB1KLfyE7CWowUxNFhGaHdR496U9RwX_ek'
 API_KEY= 'u98RiADHFAk1NwypNWP1KzkNYBoOwHcnBzlgAaGuuepbHBZ0i71QyZHjPxgqpF2HXanhezyN_7DJozE-I-mM_-ULq6joV8FVad7jmMlhtZNOzbdu4zb4eISRCIayWnYx'
 API_HOST = 'https://api.yelp.com'
 SEARCH_PATH = '/v3/businesses/search'
@@ -73,6 +74,11 @@ def recreate_db():
             for i in each_buss['location']['display_address']:
                 curr_addr += i + ' '
             if(curr_addr not in addr_set):
+                map_url = 'https://maps.googleapis.com/maps/api/geocode/json?address=' + curr_addr + '&' + 'key=' + map_api_key
+                response = requests.request('GET', map_url)
+                json_object = response.json()
+                lati = json_object['results'][0]['geometry']['location']['lat']
+                longi = json_object['results'][0]['geometry']['location']['lng']
                 curr_category = []
                 for i in each_buss['categories']:
                     curr_category.append(i['title'])
@@ -83,7 +89,9 @@ def recreate_db():
                     'categories' : curr_category,
                     'rating' : each_buss['rating'],
                     'imageURL' : each_buss['image_url'],
-                    'price' : each_buss['price']
+                    'price' : each_buss['price'],
+                    'lati' : lati,
+                    'longi' : longi
                 }
                 json_object = Restaurant(json_res)
                 db.session.add(json_object)
@@ -93,7 +101,7 @@ def recreate_db():
     # t = User(1234,'wew','ww','wewe','wew','wewe')
     # db.session.add(t)
     # db.session.commit()
-    user_date = {'name':'dean', 'password':123, 'phonenumber':'', 'interest':'', 'gender':'', 'address':''}
+    user_date = {'name':'dean', 'password':123, 'phonenumber':'', 'interest':'', 'gender':'', 'address':'','lati' : 40.111111,'longi' : -80.111}
     u1 = User(user_date)
     db.session.add(u1)
     db.session.commit()
@@ -107,7 +115,7 @@ def recreate_db():
     p1 = Post(post_data)
     db.session.add(p1)
     db.session.commit()
-    
+
 
 def request(host, path, api_key, url_params=None):
     url_params = url_params or {}

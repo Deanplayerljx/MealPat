@@ -16,6 +16,8 @@ class User(db.Model):
     password = db.Column(db.String(20), nullable=False)
     gender = db.Column(db.String(6))
     address = db.Column(db.String(50))
+    lati = db.Column(db.Float)
+    longi = db.Column(db.Float)
 
 
     def __init__(self, data):
@@ -25,6 +27,8 @@ class User(db.Model):
         self.gender = data['gender']
         self.password = data['password']
         self.address = data['address']
+        self.lati = data['lati']
+        self.longi = data['longi']
     def __repr__(self):
         return '<name {}>'.format(self.name)
 '''
@@ -54,6 +58,8 @@ class Restaurant(db.Model):
     rating = db.Column(db.Float)
     imageURL = db.Column(db.String(100))
     price = db.Column(db.String(10))
+    lati = db.Column(db.Float)
+    longi = db.Column(db.Float)
 
 
     def __init__(self, data):
@@ -64,6 +70,8 @@ class Restaurant(db.Model):
             self.rating = data['rating']
             self.imageURL = data['imageURL']
             self.price = data['price']
+            self.lati = data['lati']
+            self.longi = data['longi']
 
     def __repr__(self):
         return '<restaurant {}>'.format(self.name)
