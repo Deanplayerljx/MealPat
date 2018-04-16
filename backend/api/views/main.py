@@ -6,6 +6,11 @@ from api.utils import create_response, InvalidUsage
 from api.models import User, Restaurant, ChatRoom, Post, History
 from sqlalchemy import text
 from datetime import datetime
+import time
+import atexit
+from apscheduler.schedulers.background import BackgroundScheduler
+from apscheduler.triggers.interval import IntervalTrigger
+
 mod = Blueprint('main', __name__)
 
 SIGN_UP_URL = '/sign_up'
@@ -16,6 +21,24 @@ NEW_POST_URL = '/new_post'
 POST_DETAIL_URL = '/post/<int:pid>'
 JOIN_POST_URL = '/join_post'
 DELETE_POST_URL = '/delete_post'
+USER_HISTORY_URL = '/history/<int:uid>'
+USER_INFO_URL = '/user'
+
+# do constant checking
+# scheduler = BackgroundScheduler()
+# scheduler.start()
+# scheduler.add_job(
+#     func=check_old_posts,
+#     trigger=IntervalTrigger(seconds=5),
+#     id='checking_job',
+#     name='check old post every five seconds',
+#     replace_existing=True)
+# # Shut down the scheduler when exiting the app
+# atexit.register(lambda: scheduler.shutdown())
+
+# def check_old_posts():
+    
+    # print time.strftime("%A, %d. %B %Y %I:%M:%S %p")
 # function that is called when you visit /
 @app.route('/')
 def index():
@@ -119,9 +142,34 @@ def get_post_detail(pid):
     sql = text('select * from post where "PID"=:pid')
     result = db.engine.execute(sql, pid=pid).first()
     if result is None:
-        return create_response(message='restaurant not exist', status=411)
+        return create_response(message='post not exist', status=411)
     items = result.items()
     data = {item[0]:item[1] for item in items}
+    return create_response(data, status=200)
+
+# get user info detail
+@app.route(USER_INFO_URL)
+def get_user_info():
+    args = request.args
+    cur_uid = None
+    clicked_uid = None
+    try:
+        cur_uid = args['cur_uid']
+        clicked_uid = args['clicked_uid']
+    except:
+        return create_response(message='missing required components',status=411)
+    sql = text('select * from mealpat_user where "UID"=:uid')
+    result = db.engine.execute(sql, uid=clicked_uid).first()
+    if result is None:
+        return create_response(message='user not exist', status=411)
+    items = result.items()
+    # basic info of user
+    data = {item[0]:item[1] for item in items}
+
+    sql = text('select name from history h1, history h2, restaurant where h1."UID" =:uid1 and h2."UID"=:uid2 and h1."RID" = h2."RID"')
+    result = db.engine.execute(sql, uid1=cur_uid, uid2=clicked_uid)
+    common_restraurant = [row[0] for row in result]
+    data['common_restraurant'] = common_restraurant
     return create_response(data, status=200)
 
 # create a new post and a chatroom associated with it, return pid
@@ -200,7 +248,6 @@ def delete_post():
         return create_response(message='user does not own the post', status=411)
 
     # delete chatroom
-
     cid = result.first().items()[0][1]
     sql = text('delete from chatroom where "CID"=:cid')
     result = db.engine.execute(sql, cid=cid)
