@@ -25,20 +25,31 @@ USER_HISTORY_URL = '/history/<int:uid>'
 USER_INFO_URL = '/user'
 
 # do constant checking
-# scheduler = BackgroundScheduler()
-# scheduler.start()
-# scheduler.add_job(
-#     func=check_old_posts,
-#     trigger=IntervalTrigger(seconds=5),
-#     id='checking_job',
-#     name='check old post every five seconds',
-#     replace_existing=True)
-# # Shut down the scheduler when exiting the app
-# atexit.register(lambda: scheduler.shutdown())
+def check_old_posts():
+    sql = text('select * from post where time < CURRENT_TIMESTAMP')
+    result = db.engine.execute(sql)
+    sql = text('delete from post where time < CURRENT_TIMESTAMP')
+    db.engine.execute(sql)
+    for row in result:
+        sql = text('insert into history(time, "UID", "RID", accompanies) \
+            values (:time, :uid, :rid, :accompanies)')
+        db.engine.execute(sql, time=row[0], uid=row[3], rid=row[4], accompanies=row[6])
+        sql = text('delete from chatroom where "CID"=:cid')
+        db.engine.execute(sql, cid=row[5])
+    print('check')
 
-# def check_old_posts():
-    
-    # print time.strftime("%A, %d. %B %Y %I:%M:%S %p")
+scheduler = BackgroundScheduler()
+scheduler.start()
+scheduler.add_job(
+    func=check_old_posts,
+    trigger=IntervalTrigger(seconds=60),
+    id='checking_job',
+    name='check old post every five seconds',
+    replace_existing=True)
+# Shut down the scheduler when exiting the app
+atexit.register(lambda: scheduler.shutdown())
+
+####### endpoint functions
 # function that is called when you visit /
 @app.route('/')
 def index():
