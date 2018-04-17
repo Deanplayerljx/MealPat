@@ -1,7 +1,7 @@
 from __future__ import print_function
 from flask_script import Manager
 from flask_migrate import Migrate, MigrateCommand
-from api import db, app
+from api import db, app, socketio
 import os
 from api.models import User, Post, History, Restaurant, ChatRoom
 import argparse
@@ -11,7 +11,7 @@ import requests
 import sys
 import urllib
 from datetime import datetime
-
+from flask_socketio import SocketIO
 
 # This client code can run on Python 2.x or 3.x.  Your imports can be
 # simpler if you only need one of those.
@@ -35,13 +35,12 @@ SEARCH_LIMIT = 50
 
 manager = Manager(app)
 migrate = Migrate(app, db)
-
 manager.add_command('db', MigrateCommand)
-
 
 @manager.command
 def runserver():
-    app.run(debug=True, host='0.0.0.0', port=8000)
+    socketio.run(app, host='0.0.0.0', port=8000)
+    # app.run(debug=True, host='0.0.0.0', port=8000)
 
 
 @manager.command

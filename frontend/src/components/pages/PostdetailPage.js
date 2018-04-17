@@ -2,7 +2,7 @@ import React from 'react'
 import './../../styles/detail.css'
 import { Form, Button } from 'semantic-ui-react'
 import axios from 'axios'
-
+import io from 'socket.io-client'
 class PostdetailPage extends React.Component {
   state = {
     CID: 0,
@@ -50,6 +50,7 @@ class PostdetailPage extends React.Component {
     data.UID = this.state.UID
     data.PID = this.state.CID
     data.usrname = this.state.usrname
+
     this.props.history.push({
       pathname: 'chatroom',
       state: data

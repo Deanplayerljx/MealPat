@@ -1,4 +1,4 @@
-from api import app, db
+from api import app, db, socketio
 from flask import Blueprint, request
 import json
 from flask import jsonify
@@ -11,6 +11,7 @@ import atexit
 import requests
 from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.triggers.interval import IntervalTrigger
+from flask_socketio import join_room, leave_room, send
 
 mod = Blueprint('main', __name__)
 
@@ -38,7 +39,7 @@ def check_old_posts():
         db.engine.execute(sql, time=row[0], uid=row[3], rid=row[4], accompanies=row[6])
         sql = text('delete from chatroom where "CID"=:cid')
         db.engine.execute(sql, cid=row[5])
-    print('check')
+    # print('check')
 
 scheduler = BackgroundScheduler()
 scheduler.start()
@@ -50,6 +51,34 @@ scheduler.add_job(
     replace_existing=True)
 # Shut down the scheduler when exiting the app
 atexit.register(lambda: scheduler.shutdown())
+
+###### socket functions
+
+@socketio.on('connect')
+def connect():
+    send('hi', broadcast=True)
+    print ('connect...')
+
+
+@socketio.on('message')
+def handle_message(data):
+    send('hi', broadcast=True)
+    print ('message: ' + data)
+
+@socketio.on('join')
+def on_join(data):
+    username = data['username']
+    room = data['room']
+    join_room(room)
+    print ('join')
+    send(username + ' has entered the room.', room=room)
+
+@socketio.on('leave')
+def on_leave(data):
+    username = data['username']
+    room = data['room']
+    leave_room(room)
+    send(username + ' has left the room.', room=room)
 
 ####### endpoint functions
 # function that is called when you visit /
@@ -217,7 +246,7 @@ def create_post():
             values (:time, :title, :uid, :rid, :cid, :accompanies) returning "PID"')
     result = db.engine.execute(sql, time=data['time'], title=data['title'], uid=data['UID'], rid=data['RID'], cid=cid, accompanies=[]).first()
     pid = result.items()[0][1]
-
+    print (pid)
     # return the pid
     return create_response({"PID":pid}, status=200)
 
