@@ -9,6 +9,7 @@ import DetailPage from './components/pages/DetailPage'
 import Chatroom from './components/pages/Chatroom'
 import PostdetailPage from './components/pages/PostdetailPage'
 import SimpleMap from './components/pages/Maps'
+import MyInfoPage from './components/pages/MyInfoPage'
 
 const App = () => (
   <div className="ui container">
@@ -20,6 +21,7 @@ const App = () => (
     <Route path="/chatroom" exact component={Chatroom} />
     <Route path="/postdetail" exact component={PostdetailPage} />
     <Route path="/map" exact component={SimpleMap} />
+    <Route path="/myinfo" exact component={MyInfoPage} />
   </div>
 )
 

@@ -1,7 +1,5 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
-import LoginForm from '../forms/LoginForm'
-import { Form, Button } from 'semantic-ui-react'
 import io from 'socket.io-client'
 class Chatroom extends React.Component {
   constructor(props) {
