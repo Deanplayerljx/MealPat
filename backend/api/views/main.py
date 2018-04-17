@@ -26,6 +26,8 @@ JOIN_POST_URL = '/join_post'
 DELETE_POST_URL = '/delete_post'
 USER_HISTORY_URL = '/history/<int:uid>'
 USER_INFO_URL = '/user'
+FIND_NEAR_USER = '/findnearuser'
+FIND_NEAR_REST = '/findnearrest'
 
 # do constant checking
 def check_old_posts():
@@ -301,3 +303,73 @@ def delete_post():
     sql = text('delete from chatroom where "CID"=:cid')
     result = db.engine.execute(sql, cid=cid)
     return create_response(message='delete succeed', status=200)
+
+@app.route(FIND_NEAR_USER)
+def get_near_user_list():
+    sql = text('select * from mealpat_user')
+    result = db.engine.execute(sql)
+    args = request.args
+    UID = 0
+    distance = 0
+    try:
+        UID = args['UID']
+        distance = int(args['distance'])
+    except:
+        return create_response(message='missing required components',status=411)
+
+    sql = text('select lati,longi from mealpat_user where "UID"=:uid')
+    origin_result = db.engine.execute(sql, uid = UID).first()
+    origins = str(origin_result[0]) + ',' + str(origin_result[1])
+    dest = ''
+    i = 0
+    user = []
+    for row in result:
+        i += 1
+        dest += str(row[7]) + ',' + str(row[8]) + '|'
+        items = row.items()
+        cur_user = {item[0]:item[1] for item in items}
+        user.append(cur_user)
+    dest = dest[:-1]
+    url = 'https://maps.googleapis.com/maps/api/distancematrix/json?units=imperial&origins=' + origins + '&destinations=' + dest + '&key=' + map_api_key
+    response = requests.request('GET', url)
+    json_object = response.json()
+    return_list = []
+    for j in range(i):
+        if((json_object['rows'][0]['elements'][j]['distance']['value']) < distance):
+            return_list.append(user[j])
+    return create_response(return_list, status=200)
+
+@app.route(FIND_NEAR_REST)
+def get_near_rest_list():
+    sql = text('select * from restaurant')
+    result = db.engine.execute(sql)
+    args = request.args
+    UID = 0
+    distance = 0
+    try:
+        UID = args['UID']
+        distance = int(args['distance'])
+    except:
+        return create_response(message='missing required components',status=411)
+
+    sql = text('select lati,longi from mealpat_user where "UID"=:uid')
+    origin_result = db.engine.execute(sql, uid = UID).first()
+    origins = str(origin_result[0]) + ',' + str(origin_result[1])
+    dest = ''
+    i = 0
+    user = []
+    for row in result:
+        i += 1
+        dest += str(row[8]) + ',' + str(row[9]) + '|'
+        items = row.items()
+        cur_user = {item[0]:item[1] for item in items}
+        user.append(cur_user)
+    dest = dest[:-1]
+    url = 'https://maps.googleapis.com/maps/api/distancematrix/json?units=imperial&origins=' + origins + '&destinations=' + dest + '&key=' + map_api_key
+    response = requests.request('GET', url)
+    json_object = response.json()
+    return_list = []
+    for j in range(i):
+        if((json_object['rows'][0]['elements'][j]['distance']['value']) < distance):
+            return_list.append(user[j])
+    return create_response(return_list, status=200)
