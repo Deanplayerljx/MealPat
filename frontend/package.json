@@ -4,6 +4,7 @@
   "private": true,
   "dependencies": {
     "axios": "^0.18.0",
+    "google-map-react": "^0.34.0",
     "husky": "^0.14.3",
     "lint-staged": "^6.1.0",
     "node-sass-chokidar": "0.0.3",
@@ -14,7 +15,8 @@
     "react-router-dom": "^4.2.2",
     "react-scripts": "1.1.1",
     "semantic-ui-css": "^2.3.0",
-    "semantic-ui-react": "^0.78.3"
+    "semantic-ui-react": "^0.78.3",
+    "socket.io-client": "^2.1.0"
   },
   "scripts": {
     "build-css": "node-sass-chokidar src/ -o src/",
