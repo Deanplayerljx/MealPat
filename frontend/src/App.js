@@ -8,6 +8,7 @@ import SearchPage from './components/pages/SearchPage'
 import DetailPage from './components/pages/DetailPage'
 import Chatroom from './components/pages/Chatroom'
 import PostdetailPage from './components/pages/PostdetailPage'
+import SimpleMap from './components/pages/Maps'
 
 const App = () => (
   <div className="ui container">
@@ -18,6 +19,7 @@ const App = () => (
     <Route path="/detail" exact component={DetailPage} />
     <Route path="/chatroom" exact component={Chatroom} />
     <Route path="/postdetail" exact component={PostdetailPage} />
+    <Route path="/map" exact component={SimpleMap} />
   </div>
 )
 
