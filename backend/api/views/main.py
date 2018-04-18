@@ -84,14 +84,6 @@ def on_leave(data):
 
 ####### endpoint functions
 # function that is called when you visit /
-@app.route('/')
-def index():
-    sql = text('select "Messages" from chatroom')
-    result = db.engine.execute(sql)
-    print (result)
-    var = [row[0] for row in result]
-    return create_response({'result':var})
-
 # create a new user
 @app.route(SIGN_UP_URL, methods=['POST'])
 def sign_up():
