@@ -13,13 +13,16 @@ class PostdetailPage extends React.Component {
     accompanies: [],
     time: '',
     title: '',
-    usrname: ''
+    usrname: '',
+    selected_id: '',
+    selected: false
   }
 
   constructor(props) {
     super(props)
     console.log(this.state)
     this.state = props.location.state
+    this.state.selected = false
   }
 
   handleJoin = index => {
@@ -56,19 +59,46 @@ class PostdetailPage extends React.Component {
       state: data
     })
   }
+  showCommon = e => {
+    if (this.state.selected) {
+      return <Button> fdsuii </Button>
+    } else {
+      return (
+        <p>You can select the user id to see common restaurants have been</p>
+      )
+    }
+  }
 
+  handleFindC = e => {
+    console.log(e)
+    this.setState({ selected: true })
+  }
   render() {
     console.log('render is called')
     console.log(this.state)
     const self = this.state
+    const accompanylist = self.accompanies.map(person => {
+      return (
+        <li key={person}>
+          <a onClick={this.handleFindC.bind(this, person)}>{person}</a>
+        </li>
+      )
+    })
     return (
       <div>
         <h1> Title: {this.state.title}</h1>
         <span>Time:&nbsp; {self.time}</span>
         <br />
-        <span>CreaterId:&nbsp; {this.state.CID}</span>
+        <span>
+          CreaterId:&nbsp;
+          <a onClick={this.handleFindC.bind(this, this.state.CID)}>
+            {this.state.CID}
+          </a>
+        </span>
         <br />
-        <span>Accompanies:&nbsp; {this.state.accompanies}</span>
+        <span>
+          Accompanies:&nbsp;<ul>{accompanylist}</ul>
+        </span>
         <br />
         <Button positive size="tiny" onClick={this.handleJoin.bind(this)}>
           Join!
@@ -76,6 +106,7 @@ class PostdetailPage extends React.Component {
         <Button positive size="tiny" onClick={this.handleChat.bind(this)}>
           Start Chat!
         </Button>
+        <div>{this.showCommon()}</div>
       </div>
     )
   }
