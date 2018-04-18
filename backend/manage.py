@@ -30,7 +30,7 @@ map_api_key = 'AIzaSyB1KLfyE7CWowUxNFhGaHdR496U9RwX_ek'
 API_KEY= 'u98RiADHFAk1NwypNWP1KzkNYBoOwHcnBzlgAaGuuepbHBZ0i71QyZHjPxgqpF2HXanhezyN_7DJozE-I-mM_-ULq6joV8FVad7jmMlhtZNOzbdu4zb4eISRCIayWnYx'
 API_HOST = 'https://api.yelp.com'
 SEARCH_PATH = '/v3/businesses/search'
-DEFAULT_LOCATION = ['61801','61820','61821','champaign,IL']
+DEFAULT_LOCATION = ['61801','61820']
 SEARCH_LIMIT = 50
 
 manager = Manager(app)
@@ -67,21 +67,19 @@ def recreate_db():
 
     addr_set = set()
     for address in DEFAULT_LOCATION:
-        bussinesses = search(API_KEY,address).get('businesses')
+        bussinesses = search(API_KEY,address)
+        # print (bussinesses)
         print (len(bussinesses))
         for each_buss in bussinesses:
             curr_addr = ""
             for i in each_buss['location']['display_address']:
                 curr_addr += i + ' '
             if(curr_addr not in addr_set):
-                map_url = 'https://maps.googleapis.com/maps/api/geocode/json?address=' + curr_addr + '&' + 'key=' + map_api_key
-                response = requests.request('GET', map_url)
-                json_object = response.json()
-                lati = json_object['results'][0]['geometry']['location']['lat']
-                longi = json_object['results'][0]['geometry']['location']['lng']
+                lati = each_buss
                 curr_category = []
                 for i in each_buss['categories']:
                     curr_category.append(i['title'])
+                
                 json_res = {
                     'name' : each_buss['name'],
                     'address' : curr_addr,
@@ -89,10 +87,13 @@ def recreate_db():
                     'categories' : curr_category,
                     'rating' : each_buss['rating'],
                     'imageURL' : each_buss['image_url'],
-                    'price' : each_buss['price'],
-                    'lati' : lati,
-                    'longi' : longi
+                    'lati' : each_buss['coordinates']['latitude'],
+                    'longi' : each_buss['coordinates']['longitude']
                 }
+                try: 
+                    json_res['price'] = each_buss['price']
+                except:
+                    json_res['price'] = ''
                 json_object = Restaurant(json_res)
                 db.session.add(json_object)
                 addr_set.add(curr_addr)
@@ -132,12 +133,17 @@ def request(host, path, api_key, url_params=None):
 
 
 def search(api_key, location):
-
-    url_params = {
-        'location': location.replace(' ', '+'),
-        'limit': SEARCH_LIMIT
-    }
-    return request(API_HOST, SEARCH_PATH, api_key, url_params=url_params)
+    result = []
+    for offset_idx in range(10):
+        url_params = {
+            'location': location.replace(' ', '+'),
+            'limit': SEARCH_LIMIT,
+            'offset': offset_idx * SEARCH_LIMIT,
+            'categories': 'restaurants, All'
+        }
+        print (url_params)
+        result += request(API_HOST, SEARCH_PATH, api_key, url_params=url_params).get('businesses')
+    return result
 
 if __name__ == '__main__':
     manager.run()
