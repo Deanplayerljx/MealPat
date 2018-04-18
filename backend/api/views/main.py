@@ -15,7 +15,7 @@ from flask_socketio import join_room, leave_room, send
 
 mod = Blueprint('main', __name__)
 
-map_api_key = 'AIzaSyB1KLfyE7CWowUxNFhGaHdR496U9RwX_ek'
+map_api_key = 'AIzaSyCW_Aehw77ilibw2sOKbLiO3YapjKLzIf8'
 SIGN_UP_URL = '/sign_up'
 LOG_IN_URL = '/log_in'
 SEARCH_PAGE_URL = '/search'
@@ -351,18 +351,22 @@ def get_near_rest_list():
     dest = ''
     i = 0
     user = []
+    return_list = []
     for row in result:
         i += 1
         dest += str(row[8]) + ',' + str(row[9]) + '|'
         items = row.items()
         cur_user = {item[0]:item[1] for item in items}
         user.append(cur_user)
-    dest = dest[:-1]
-    url = 'https://maps.googleapis.com/maps/api/distancematrix/json?units=imperial&origins=' + origins + '&destinations=' + dest + '&key=' + map_api_key
-    response = requests.request('GET', url)
-    json_object = response.json()
-    return_list = []
-    for j in range(i):
-        if((json_object['rows'][0]['elements'][j]['distance']['value']) < distance):
-            return_list.append(user[j])
+        if(i == 100):
+            dest = dest[:-1]
+            url = 'https://maps.googleapis.com/maps/api/distancematrix/json?units=imperial&origins=' + origins + '&destinations=' + dest + '&key=' + map_api_key
+            response = requests.request('GET', url)
+            json_object = response.json()
+            print(json_object)
+            for j in range(100):
+                if((json_object['rows'][0]['elements'][j]['distance']['value']) < distance):
+                    return_list.append(user[j])
+            dest = ''
+            user = []
     return create_response(return_list, status=200)

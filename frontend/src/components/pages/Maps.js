@@ -91,7 +91,7 @@ class Map extends Component {
       <div style={{ height: '100vh' }}>
         <GoogleMapReact
           bootstrapURLKeys={{
-            key: 'AIzaSyB1KLfyE7CWowUxNFhGaHdR496U9RwX_ek',
+            key: 'AIzaSyCW_Aehw77ilibw2sOKbLiO3YapjKLzIf8',
             libraries: 'places'
           }}
           onGoogleApiLoaded={this.onGoogleApiLoaded}
