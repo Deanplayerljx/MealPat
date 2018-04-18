@@ -25,6 +25,10 @@ class Map extends Component {
     )
   }
 
+  // constructor(props) {
+  //   super(props)
+  // }
+
   callback = (results, status) => {
     for (var i = 0; i < results.length; i++) {
       this.renderMarkers(results[i])
@@ -56,7 +60,7 @@ class Map extends Component {
             libraries: 'places'
           }}
           onGoogleApiLoaded={this.onGoogleApiLoaded}
-          defaultCenter={[40.1138326, -88.2216972]}
+          defaultCenter={[40.1113161, -88.2290516]}
           defaultZoom={17}
         />
       </div>

@@ -1,6 +1,7 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
 import io from 'socket.io-client'
+import { Button } from 'semantic-ui-react'
 class Chatroom extends React.Component {
   constructor(props) {
     console.log(props)

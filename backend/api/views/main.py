@@ -165,10 +165,10 @@ def log_in():
 @app.route(SEARCH_PAGE_URL)
 def get_restaurant_list():
     restaurant_list = Restaurant.query.all()
-    sql = text('select name, address, "RID" from restaurant')
+    sql = text('select name, address, "RID", lati, longi from restaurant')
     result = db.engine.execute(sql)
     # print ([row for row in result])
-    data = {'name_address_rid':[(row[0], row[1], row[2]) for row in result]}
+    data = {'name_address_rid_lati_longi':[(row[0], row[1], row[2], row[3], row[4]) for row in result]}
     return create_response(data, status=200)
 
 # get restaurant detail information
