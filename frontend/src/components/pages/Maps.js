@@ -52,6 +52,7 @@ class Map extends Component {
   }
 
   render() {
+    let defaultCenter = this.props.defaultCenter
     return (
       <div style={{ height: '100vh' }}>
         <GoogleMapReact
@@ -60,7 +61,7 @@ class Map extends Component {
             libraries: 'places'
           }}
           onGoogleApiLoaded={this.onGoogleApiLoaded}
-          defaultCenter={[40.1113161, -88.2290516]}
+          defaultCenter={defaultCenter}
           defaultZoom={17}
         />
       </div>

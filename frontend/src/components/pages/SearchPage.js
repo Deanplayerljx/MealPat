@@ -16,11 +16,13 @@ class SearchPage extends React.Component {
       rid: 0,
       name_address_rid_lati_longi: [],
       isUserResult: true,
-      defaultCenter: [],
+      defaultCenter: [props.location.state.lati, props.location.state.longi],
       nearList: [],
       userDistance: 0,
       restaurantDistance: 0
     }
+    console.log('hiiii')
+    console.log(this.state)
     var self = this
     axios
       .get('http://127.0.0.1:8000/search')
@@ -147,11 +149,11 @@ class SearchPage extends React.Component {
       value,
       results,
       nearList,
-      longi,
-      lati,
+      defaultCenter,
       isNearUser
     } = this.state
-    console.log(results)
+
+    console.log(defaultCenter)
     const dropdown_options = [
       { value: '100', text: 'in 100 m' },
       { value: '500', text: 'in 500 m' },
@@ -200,7 +202,7 @@ class SearchPage extends React.Component {
         <div className="map">
           <Map
             nearList={nearList}
-            defaultCenter={[longi, lati]}
+            defaultCenter={defaultCenter}
             isNearUser={isNearUser}
           />
         </div>

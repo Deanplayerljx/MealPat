@@ -68,6 +68,7 @@ def recreate_db():
     addr_set = set()
     for address in DEFAULT_LOCATION:
         bussinesses = search(API_KEY,address).get('businesses')
+        print (len(bussinesses))
         for each_buss in bussinesses:
             curr_addr = ""
             for i in each_buss['location']['display_address']:
@@ -100,7 +101,7 @@ def recreate_db():
     # t = User(1234,'wew','ww','wewe','wew','wewe')
     # db.session.add(t)
     # db.session.commit()
-    user_date = {'name':'dean', 'password':123, 'phonenumber':'', 'interest':'', 'gender':'', 'address':'','lati' : 40.111111,'longi' : -80.111}
+    user_date = {'name':'dean', 'password':123, 'phonenumber':'', 'interest':'', 'gender':'', 'address':'','lati' : 40.1113161,'longi' : -88.2290516}
     u1 = User(user_date)
     db.session.add(u1)
     db.session.commit()

@@ -153,13 +153,14 @@ def log_in():
     except:
         return create_response(message='missing required components',status=411)
 
-    sql = text('select "UID" from mealpat_user where name=:name and password=:password')
+    sql = text('select "UID", lati, longi from mealpat_user where name=:name and password=:password')
     result = db.engine.execute(sql, name=username, password=password).first()
     # user = User.query.filter_by(name = username, password = password).first()
     if result is None:
         return create_response(message='user not exist', status=411)
     else:
-        return create_response({'UID':result[0]}, status=200)
+        print (result)
+        return create_response({'UID':result[0], 'lati':result[1], 'longi':result[2]}, status=200)
 
 # get a list of restaurant basic info for search page
 @app.route(SEARCH_PAGE_URL)
