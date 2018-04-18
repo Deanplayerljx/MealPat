@@ -97,7 +97,7 @@ class SearchPage extends React.Component {
     let self = this
     let params = { UID: this.state.UID, distance: this.state.userDistance }
     axios
-      .get('http://127.0.0.1:8000//findnearuser', (params = { params }))
+      .get('http://127.0.0.1:8000/findnearuser', (params = { params }))
       .then(function(response) {
         console.log(response)
         self.setState({ nearList: response.data.result, isNearUser: true })
@@ -115,7 +115,7 @@ class SearchPage extends React.Component {
       distance: this.state.restaurantDistance
     }
     axios
-      .get('http://127.0.0.1:8000//findnearrest', (params = { params }))
+      .get('http://127.0.0.1:8000/findnearrest', (params = { params }))
       .then(function(response) {
         console.log(response)
         self.setState({ nearList: response.data.result, isNearUser: false })
@@ -204,6 +204,8 @@ class SearchPage extends React.Component {
             nearList={nearList}
             defaultCenter={defaultCenter}
             isNearUser={isNearUser}
+            userDistance={this.state.userDistance}
+            restaurantDistance={this.state.restaurantDistance}
           />
         </div>
       </div>
