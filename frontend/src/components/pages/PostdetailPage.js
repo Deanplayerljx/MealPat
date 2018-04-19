@@ -70,22 +70,25 @@ class PostdetailPage extends React.Component {
 
   handleFindC = e => {
     console.log('handlefindc begin')
-
     var self = this
     var data = {}
     data.cur_uid = self.state.CurrUID
     data.clicked_uid = e
     console.log(data)
-    axios
-      .get('http://127.0.0.1:8000/user', { params: data })
-      .then(function(response) {
-        console.log(response)
-        self.setState({ result: response.data.result })
-        self.setState({ selected: true })
-      })
-      .catch(function(error) {
-        console.log(error)
-      })
+    if (data.cur_uid != data.clicked_uid) {
+      axios
+        .get('http://127.0.0.1:8000/user', { params: data })
+        .then(function(response) {
+          console.log(response)
+          self.setState({ result: response.data.result })
+          self.setState({ selected: true })
+        })
+        .catch(function(error) {
+          console.log(error)
+        })
+    } else {
+      alert('You have clicked yourself')
+    }
   }
   render() {
     console.log('render is called')
