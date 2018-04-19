@@ -1,0 +1,22 @@
+.chat-input{
+  width: 100%;
+  margin-left: -20px;
+  margin-right: -20px;
+  margin-bottom: 20px;
+  bottom: 0px;
+}
+
+.message-list {
+    overflow-y: scroll;
+    overflow-x: hidden;
+    flex-grow: 1;
+    padding: 20px;
+}
+
+.container {
+    min-height:100vh;
+    max-height:100vh;
+    max-width:100%;
+    display: flex;
+    flex-direction: column;
+}

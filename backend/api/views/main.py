@@ -11,7 +11,7 @@ import atexit
 import requests
 from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.triggers.interval import IntervalTrigger
-from flask_socketio import join_room, leave_room, send
+from flask_socketio import join_room, leave_room, send, emit
 
 mod = Blueprint('main', __name__)
 
@@ -58,29 +58,49 @@ atexit.register(lambda: scheduler.shutdown())
 
 @socketio.on('connect')
 def connect():
-    send('hi', broadcast=True)
     print ('connect...')
 
 
 @socketio.on('message')
 def handle_message(data):
-    send('hi', broadcast=True)
-    print ('message: ' + data)
+    
+    # add message to database
+    sql = text('select messages from chatroom where "CID"=:cid')
+    result = db.engine.execute(sql, cid=int(data['room'])).first()
+    history_message= result[0]
+    print (type(history_message))
+    print (history_message)
+    print (data['message'])
+    history_message.append(data['message'])
+    print (history_message)
+    print (data['room'])
+    sql = text('update chatroom set messages=:history where "CID"=:cid')
+    result = db.engine.execute(sql, cid=int(data['room']),history=history_message)
+    send(data['message'], broadcast=True, room=data['room'])
+    # print ('history: ' + history_message)
 
 @socketio.on('join')
 def on_join(data):
-    username = data['username']
     room = data['room']
+    username = data['username']
     join_room(room)
-    print ('join')
-    send(username + ' has entered the room.', room=room)
+
+    # fetch histories
+    sql = text('select messages from chatroom where "CID"=:cid')
+    result = db.engine.execute(sql, cid=int(room)).first()
+    history = result[0]
+
+    response = {'username':username, 'history':history}
+    emit('join', response, room=room)
 
 @socketio.on('leave')
 def on_leave(data):
     username = data['username']
     room = data['room']
     leave_room(room)
-    send(username + ' has left the room.', room=room)
+    print ('leave')
+    response = {'username':username}
+    emit('leave', response, room=room)
 
 ####### endpoint functions
 # function that is called when you visit /
@@ -368,5 +388,5 @@ def get_near_rest_list():
                 if((json_object['rows'][0]['elements'][j]['distance']['value']) < distance):
                     return_list.append(user[j])
             dest = ''
-            user = []
+            user[:] = []
     return create_response(return_list, status=200)
