@@ -1,6 +1,5 @@
 import React, { Component } from 'react'
 import GoogleMapReact from 'google-map-react'
-
 class Navigation extends Component {
   constructor(props) {
     super(props)
@@ -59,8 +58,9 @@ class Navigation extends Component {
   onGoogleApiLoaded = ({ map, maps }) => {
     this.map = map
     this.maps = maps
-    this.infowindow = new maps.InfoWindow({ maxWidth: 100 })
+    this.infowindow = new maps.InfoWindow({ maxWidth: 120 })
     this.directionsService = new this.maps.DirectionsService()
+    this.geocoder = new this.maps.Geocoder()
     // var directionsDisplay_1 = new this.maps.DirectionsRenderer();
     // directionsDisplay_1.setMap(this.map);
     // var directionsDisplay_2 = new this.maps.DirectionsRenderer();
@@ -113,9 +113,22 @@ class Navigation extends Component {
       title: 'Hello World!'
     })
     this.curr_mark.push(marker)
-    marker.addListener('click', () => {
-      this.infowindow.setContent('We suggest you meet here')
-      this.infowindow.open(this.map, marker)
+    var latlng = {
+      lat: parseFloat(place['lati']),
+      lng: parseFloat(place['longi'])
+    }
+    this.geocoder.geocode({ location: latlng }, (results, status) => {
+      if (status === 'OK') {
+        marker.addListener('click', () => {
+          this.infowindow.setContent(
+            'We suggest you to meet here.' +
+              '\n' +
+              'Address:' +
+              results[1].formatted_address
+          )
+          this.infowindow.open(this.map, marker)
+        })
+      }
     })
   }
   clearCurrMarker = mar => {
