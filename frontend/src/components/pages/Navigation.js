@@ -10,11 +10,29 @@ class Navigation extends Component {
     this.index = 0
   }
   renderDirections = result => {
-    var directionsRenderer = new this.maps.DirectionsRenderer()
+    var directionsRenderer = new this.maps.DirectionsRenderer({
+      suppressMarkers: true
+    })
     directionsRenderer.setMap(this.map)
     directionsRenderer.setDirections(result)
   }
   requestDirections = (start, end) => {
+    var request = {
+      origin: start,
+      destination: end,
+      travelMode: 'WALKING'
+    }
+    //var temp_display = display[i]
+    this.directionsService.route(request, (result, status) => {
+      if (status == 'OK') {
+        this.routes.push(result)
+        this.renderDirections(result)
+        //var position =  {lati : steps[i]['path'][0].lat(), longi : steps[i]['path'][0].lng()}
+        //this.renderMarkers(position)
+      }
+    })
+  }
+  requestDirections_find_overlap = (start, end) => {
     var request = {
       origin: start,
       destination: end,
@@ -35,11 +53,12 @@ class Navigation extends Component {
           var path = steps[i]['path']
           for (var j = 0; j < path.length; j++) {
             var temp_index = this.lati.indexOf(path[j].lat())
-            console.log(this.lati)
+            //console.log(this.lati)
             if (temp_index > -1 && this.longi[temp_index] == path[j].lng()) {
+              console.log('hi')
               not_find = false
-              var position = { lati: path[j].lat(), longi: path[j].lng() }
-              this.renderMarkers(position)
+              var position = { lat: path[j].lat(), lng: path[j].lng() }
+              this.renderMarkers_end(position)
               break
             } else {
               temp_lati.push(path[j].lat())
@@ -67,56 +86,115 @@ class Navigation extends Component {
     // directionsDisplay_2.setMap(this.map);
 
     var start = [
-      { lat: 40.110933, lng: -88.228256 },
-      { lat: 40.1092101, lng: -88.2272225 }
+      { lat: 40.1122101, lng: -88.230256 },
+      { lat: 40.1092101, lng: -88.2292225 }
     ]
     var end = { lat: 40.115557, lng: -88.2337529 }
-    this.requestDirections(start[0], end)
-    this.requestDirections(start[1], end)
-    // for(var i = 0; i < start.length; i++){
-    //   var temp = new this.maps.DirectionsRenderer();
-    //   temp.setMap(this.map);
-    //   display.push(temp)
-    // }
-    // //for(var i = 0; i < start.length; i++){
-    //   var request = {
-    //     origin: start[0],
-    //     destination: end,
-    //     travelMode: 'WALKING'
-    //   };
-    //   //var temp_display = display[i]
-    //   this.directionsService.route(request, function(result, status) {
-    //     if (status == 'OK') {
-    //       directionsDisplay_1.setDirections(result);
-    //     }
-    //   });
-    //   var request = {
-    //     origin: start[1],
-    //     destination: end,
-    //     travelMode: 'DRIVING'
-    //   };
-    //   //var temp_display = display[i]
-    //   this.directionsService.route(request, function(result, status) {
-    //     if (status == 'OK') {
-    //       directionsDisplay_2.setDirections(result);
-    //     }
-    //   });
-    //}
+    var midpoint = {
+      lat: (start[0]['lat'] + start[1]['lat']) / 2,
+      lng: (start[0]['lng'] + start[1]['lng']) / 2
+    }
+    this.setState({ start: start, end: end, midpoint: midpoint })
+    var absolute_start_1 = [
+      start[0]['lat'] - end['lat'],
+      start[0]['lng'] - end['lng']
+    ]
+    var absolute_start_2 = [
+      start[1]['lat'] - end['lat'],
+      start[1]['lng'] - end['lng']
+    ]
+    if (
+      absolute_start_1[0] * absolute_start_2[0] < 0 &&
+      absolute_start_1[1] * absolute_start_2[1] < 0
+    ) {
+      this.requestDirections(start[0], end)
+      this.requestDirections(start[1], end)
+      this.renderMarkers_start(start[0])
+      this.renderMarkers_start(start[1])
+      this.renderMarkers_end(end)
+    } else if (
+      absolute_start_1[0] * absolute_start_2[0] > 0 &&
+      absolute_start_1[1] * absolute_start_2[1] > 0
+    ) {
+      this.requestDirections_find_overlap(start[0], end)
+      this.requestDirections_find_overlap(start[1], end)
+      this.renderMarkers_start(start[0])
+      this.renderMarkers_start(start[1])
+      this.renderMarkers_rest(end)
+    } else {
+      var service = new this.maps.DistanceMatrixService()
+      service.getDistanceMatrix(
+        {
+          origins: [start[0], start[1], midpoint],
+          destinations: [end, start[1]],
+          travelMode: 'WALKING'
+        },
+        this.callback
+      )
+    }
   }
-  renderMarkers = place => {
+  callback = (response, status) => {
+    console.log(response)
+    var start_1_to_end = response['rows'][0]['elements'][0]['distance']['value']
+    var start_2_to_end = response['rows'][1]['elements'][0]['distance']['value']
+    var mid_to_end = response['rows'][2]['elements'][0]['distance']['value']
+    var start_1_to_start_2 =
+      response['rows'][0]['elements'][1]['distance']['value']
+    console.log(start_1_to_end)
+    console.log(start_2_to_end)
+    console.log(mid_to_end)
+    console.log(start_1_to_start_2)
+    let start = this.state.start
+    let end = this.state.end
+    let midpoint = this.state.midpoint
+    if (start_1_to_end < 500 || start_2_to_end < 500) {
+      this.requestDirections(start[0], end)
+      this.requestDirections(start[1], end)
+      this.renderMarkers_start(start[0])
+      this.renderMarkers_start(start[1])
+      this.renderMarkers_end(end)
+    } else if (start_1_to_start_2 < 1000 && mid_to_end > 1000) {
+      this.requestDirections(start[0], midpoint)
+      this.requestDirections(start[1], midpoint)
+      this.requestDirections(midpoint, end)
+      this.renderMarkers_start(start[0])
+      this.renderMarkers_start(start[1])
+      this.renderMarkers_end(midpoint)
+      this.renderMarkers_rest(end)
+    } else if (
+      Math.max(start_2_to_end, start_1_to_end) >
+      start_1_to_start_2 * 1.5
+    ) {
+      this.requestDirections(start[0], midpoint)
+      this.requestDirections(start[1], midpoint)
+      this.requestDirections(midpoint, end)
+      this.renderMarkers_start(start[0])
+      this.renderMarkers_start(start[1])
+      this.renderMarkers_end(midpoint)
+      this.renderMarkers_rest(end)
+    } else {
+      this.requestDirections(start[0], end)
+      this.requestDirections(start[1], end)
+      this.renderMarkers_start(start[0])
+      this.renderMarkers_start(start[1])
+      this.renderMarkers_end(end)
+    }
+  }
+  renderMarkers_end = place => {
     let marker = new this.maps.Marker({
       position: {
-        lat: parseFloat(place['lati']),
-        lng: parseFloat(place['longi'])
+        lat: parseFloat(place['lat']),
+        lng: parseFloat(place['lng'])
       },
       map: this.map,
       title: 'Hello World!'
     })
     this.curr_mark.push(marker)
     var latlng = {
-      lat: parseFloat(place['lati']),
-      lng: parseFloat(place['longi'])
+      lat: parseFloat(place['lat']),
+      lng: parseFloat(place['lng'])
     }
+    console.log(latlng)
     this.geocoder.geocode({ location: latlng }, (results, status) => {
       if (status === 'OK') {
         marker.addListener('click', () => {
@@ -131,6 +209,47 @@ class Navigation extends Component {
       }
     })
   }
+
+  renderMarkers_rest = place => {
+    let marker = new this.maps.Marker({
+      position: {
+        lat: parseFloat(place['lat']),
+        lng: parseFloat(place['lng'])
+      },
+      map: this.map,
+      title: 'Hello World!'
+    })
+    this.curr_mark.push(marker)
+    var latlng = {
+      lat: parseFloat(place['lat']),
+      lng: parseFloat(place['lng'])
+    }
+    marker.addListener('click', () => {
+      this.infowindow.setContent('The destination restaurant')
+      this.infowindow.open(this.map, marker)
+    })
+  }
+
+  renderMarkers_start = place => {
+    let marker = new this.maps.Marker({
+      position: {
+        lat: parseFloat(place['lat']),
+        lng: parseFloat(place['lng'])
+      },
+      map: this.map,
+      title: 'Hello World!'
+    })
+    this.curr_mark.push(marker)
+    var latlng = {
+      lat: parseFloat(place['lat']),
+      lng: parseFloat(place['lng'])
+    }
+    marker.addListener('click', () => {
+      this.infowindow.setContent('Start Point')
+      this.infowindow.open(this.map, marker)
+    })
+  }
+
   clearCurrMarker = mar => {
     for (var i = 0; i < mar.length; i++) {
       mar[i].setMap(null)
