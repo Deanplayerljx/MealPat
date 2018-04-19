@@ -210,6 +210,17 @@ def get_post_detail(pid):
         return create_response(message='post not exist', status=411)
     items = result.items()
     data = {item[0]:item[1] for item in items}
+    creater_id = data['UID']
+    sql = text('select name from mealpat_user where "UID"=:uid')
+    creater_name = db.engine.execute(sql, uid=creater_id).first()[0]
+    accompanies_ids = data['accompanies']
+    accompanies_name = []
+    for acc_id in accompanies_ids:
+        sql = text('select name from mealpat_user where "UID"=:uid')
+        acc_name = db.engine.execute(sql, uid=acc_id).first()[0]
+        accompanies_name.append(acc_name)
+    data['creater_name'] = creater_name
+    data['accompanies_name'] = accompanies_name
     return create_response(data, status=200)
 
 # get user info detail
