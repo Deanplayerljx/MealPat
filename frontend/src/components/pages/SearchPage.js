@@ -222,6 +222,7 @@ class SearchPage extends React.Component {
             {' '}
             Discover Restaurants
           </Button>
+          <Link to="/login">Signout</Link>
         </Grid>
         <div className="map">
           <Map
