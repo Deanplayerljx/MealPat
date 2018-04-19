@@ -12,7 +12,7 @@ class LoginPage extends React.Component {
       .then(function(response) {
         console.log(response)
         console.log(response.data.result)
-        response.data.result.usrname = data.name
+        response.data.result.username = data.name
         self.props.history.push({
           pathname: '/search',
           state: response.data.result

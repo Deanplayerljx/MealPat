@@ -8,7 +8,7 @@ class SearchPage extends React.Component {
   constructor(props) {
     super(props)
     this.state = {
-      usrname: props.location.state.usrname,
+      username: props.location.state.username,
       UID: props.location.state.UID,
       isLoading: false,
       results: [],
@@ -43,7 +43,8 @@ class SearchPage extends React.Component {
       .get('http://127.0.0.1:8000/restaurant/' + data)
       .then(function(response) {
         response.data.result.UID = self.state.UID
-        response.data.result.usrname = self.state.usrname
+        response.data.result.username = self.state.username
+
         console.log(response.data.result)
         self.props.history.push({
           pathname: '/detail',

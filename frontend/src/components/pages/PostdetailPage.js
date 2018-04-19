@@ -3,26 +3,26 @@ import './../../styles/detail.css'
 import { Form, Button } from 'semantic-ui-react'
 import axios from 'axios'
 import io from 'socket.io-client'
-class PostdetailPage extends React.Component {
-  state = {
-    CID: 0,
-    CurrUID: 0,
-    PID: 13,
-    RID: 1,
-    UID: 1,
-    accompanies: [],
-    time: '',
-    title: '',
-    usrname: '',
-    selected_id: '',
-    selected: false
-  }
+import UserInfo from './UserInfo'
 
+class PostdetailPage extends React.Component {
   constructor(props) {
     super(props)
+    this.state = {
+      CID: props.location.state.CID,
+      CurrUID: props.location.state.CurrUID,
+      PID: props.location.state.PID,
+      RID: props.location.state.RID,
+      UID: props.location.state.UID,
+      accompanies: props.location.state.accompanies,
+      time: props.location.state.time,
+      title: props.location.state.title,
+      username: props.location.state.username,
+      selected: false,
+      result: {}
+    }
     console.log(this.state)
-    this.state = props.location.state
-    this.state.selected = false
+    //this.state = props.location.state
   }
 
   handleJoin = index => {
@@ -51,8 +51,8 @@ class PostdetailPage extends React.Component {
     const self = this
     var data = {}
     data.UID = this.state.UID
-    data.PID = this.state.CID
-    data.usrname = this.state.usrname
+    data.CID = this.state.CID
+    data.username = this.state.username
 
     this.props.history.push({
       pathname: 'chatroom',
@@ -60,18 +60,32 @@ class PostdetailPage extends React.Component {
     })
   }
   showCommon = e => {
+    console.log('showcommon started')
     if (this.state.selected) {
-      return <Button> fdsuii </Button>
+      return <UserInfo result={this.state.result} />
     } else {
-      return (
-        <p>You can select the user id to see common restaurants have been</p>
-      )
+      return <p>You can select the user id to see their information</p>
     }
   }
 
   handleFindC = e => {
-    console.log(e)
-    this.setState({ selected: true })
+    console.log('handlefindc begin')
+
+    var self = this
+    var data = {}
+    data.cur_uid = self.state.CurrUID
+    data.clicked_uid = e
+    console.log(data)
+    axios
+      .get('http://127.0.0.1:8000/user', { params: data })
+      .then(function(response) {
+        console.log(response)
+        self.setState({ result: response.data.result })
+        self.setState({ selected: true })
+      })
+      .catch(function(error) {
+        console.log(error)
+      })
   }
   render() {
     console.log('render is called')
@@ -91,8 +105,8 @@ class PostdetailPage extends React.Component {
         <br />
         <span>
           CreaterId:&nbsp;
-          <a onClick={this.handleFindC.bind(this, this.state.CID)}>
-            {this.state.CID}
+          <a onClick={this.handleFindC.bind(this, this.state.UID)}>
+            {this.state.UID}
           </a>
         </span>
         <br />

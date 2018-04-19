@@ -7,7 +7,7 @@ class DetailPage extends React.Component {
   state = {
     RID: 0,
     UID: 0,
-    usrname: 'dean',
+    username: 'dean',
     address: '',
     categories: [],
     imageURL: '',
@@ -43,7 +43,7 @@ class DetailPage extends React.Component {
         var data = {}
         data = response.data.result
         data.CurrUID = self.state.UID
-        data.usrname = self.state.usrname
+        data.username = self.state.username
         console.log(data)
         self.props.history.push({
           pathname: 'postdetail',
