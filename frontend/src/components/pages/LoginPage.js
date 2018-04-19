@@ -20,6 +20,7 @@ class LoginPage extends React.Component {
       })
       .catch(function(error) {
         console.log(error)
+        alert('Wrong password or user not exist')
       })
   }
   render() {

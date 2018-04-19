@@ -15,10 +15,12 @@ class PostdetailPage extends React.Component {
       RID: props.location.state.RID,
       UID: props.location.state.UID,
       accompanies: props.location.state.accompanies,
+      accompanies_name: props.location.state.accompanies_name,
       time: props.location.state.time,
       title: props.location.state.title,
       username: props.location.state.username,
       selected: false,
+      creatername: props.location.state.creater_name,
       result: {}
     }
     console.log(this.state)
@@ -73,7 +75,7 @@ class PostdetailPage extends React.Component {
     var self = this
     var data = {}
     data.cur_uid = self.state.CurrUID
-    data.clicked_uid = e
+    data.clicked_uid = self.state.accompanies[e]
     console.log(data)
     if (data.cur_uid != data.clicked_uid) {
       axios
@@ -94,10 +96,10 @@ class PostdetailPage extends React.Component {
     console.log('render is called')
     console.log(this.state)
     const self = this.state
-    const accompanylist = self.accompanies.map(person => {
+    const accompanylist = self.accompanies_name.map((person, index) => {
       return (
-        <li key={person}>
-          <a onClick={this.handleFindC.bind(this, person)}>{person}</a>
+        <li key={index}>
+          <a onClick={this.handleFindC.bind(this, index)}>{person}</a>
         </li>
       )
     })
@@ -107,9 +109,9 @@ class PostdetailPage extends React.Component {
         <span>Time:&nbsp; {self.time}</span>
         <br />
         <span>
-          CreaterId:&nbsp;
+          CreaterName:&nbsp;
           <a onClick={this.handleFindC.bind(this, this.state.UID)}>
-            {this.state.UID}
+            {this.state.creatername}
           </a>
         </span>
         <br />
