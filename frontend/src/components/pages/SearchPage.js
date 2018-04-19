@@ -2,6 +2,7 @@ import React from 'react'
 import { Search, Grid, Header, Button, Dropdown } from 'semantic-ui-react'
 import axios from 'axios'
 import Map from './Maps'
+import { Link } from 'react-router-dom'
 import '../../styles/searchPage.css'
 
 class SearchPage extends React.Component {
