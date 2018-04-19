@@ -4,6 +4,7 @@ import json
 from flask import jsonify
 from api.utils import create_response, InvalidUsage
 from api.models import User, Restaurant, ChatRoom, Post, History
+from api.api_key import map_api_key
 from sqlalchemy import text
 from datetime import datetime
 import time
@@ -15,7 +16,7 @@ from flask_socketio import join_room, leave_room, send, emit
 
 mod = Blueprint('main', __name__)
 
-map_api_key = 'AIzaSyCW_Aehw77ilibw2sOKbLiO3YapjKLzIf8'
+# map_api_key = 'AIzaSyCW_Aehw77ilibw2sOKbLiO3YapjKLzIf8'
 SIGN_UP_URL = '/sign_up'
 LOG_IN_URL = '/log_in'
 SEARCH_PAGE_URL = '/search'
@@ -383,7 +384,6 @@ def get_near_rest_list():
             url = 'https://maps.googleapis.com/maps/api/distancematrix/json?units=imperial&origins=' + origins + '&destinations=' + dest + '&key=' + map_api_key
             response = requests.request('GET', url)
             json_object = response.json()
-            print(json_object)
             for j in range(100):
                 if((json_object['rows'][0]['elements'][j]['distance']['value']) < distance):
                     return_list.append(user[j])

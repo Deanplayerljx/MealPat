@@ -16,6 +16,7 @@ class SearchPage extends React.Component {
       rid: 0,
       name_address_rid_lati_longi: [],
       isUserResult: true,
+      isSpecific: false,
       defaultCenter: [props.location.state.lati, props.location.state.longi],
       nearList: [],
       userDistance: 0,
@@ -65,10 +66,24 @@ class SearchPage extends React.Component {
   }
 
   handleResultSelect = (e, { result }) => {
-    console.log('hi')
-    console.log(result)
-    this.setState({ value: result.title, rid: result.price })
-    this.submit(result.price)
+    var self = this
+    axios
+      .get('http://127.0.0.1:8000/restaurant/' + result.price)
+      .then(function(response) {
+        console.log(response.data.result)
+        self.setState({
+          isSpecific: true,
+          isUserResult: true,
+          isNearUser: false,
+          nearList: [response.data.result]
+        })
+      })
+      .catch(function(error) {
+        console.log(error)
+      })
+
+    // this.setState({ value: result.title, rid: result.price })
+    // this.submit(result.price)
   }
 
   handleSearchChange = (e, { value }) => {
@@ -101,7 +116,11 @@ class SearchPage extends React.Component {
       .get('http://127.0.0.1:8000/findnearuser', (params = { params }))
       .then(function(response) {
         console.log(response)
-        self.setState({ nearList: response.data.result, isNearUser: true })
+        self.setState({
+          nearList: response.data.result,
+          isNearUser: true,
+          isSpecific: false
+        })
         // self.state.name_address_rid_lati_longi = response.data.result.name_address_rid_lati_longi
       })
       .catch(function(error) {
@@ -119,7 +138,11 @@ class SearchPage extends React.Component {
       .get('http://127.0.0.1:8000/findnearrest', (params = { params }))
       .then(function(response) {
         console.log(response)
-        self.setState({ nearList: response.data.result, isNearUser: false })
+        self.setState({
+          nearList: response.data.result,
+          isNearUser: false,
+          isSpecific: false
+        })
         // self.state.name_address_rid_lati_longi = response.data.result.name_address_rid_lati_longi
       })
       .catch(function(error) {
