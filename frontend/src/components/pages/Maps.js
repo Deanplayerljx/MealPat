@@ -10,7 +10,7 @@ class Map extends Component {
   onGoogleApiLoaded = ({ map, maps }) => {
     this.map = map
     this.maps = maps
-    this.infowindow = new maps.InfoWindow({ maxWidth: 100 })
+    this.infowindow = new maps.InfoWindow({ maxWidth: 200 })
   }
   renderMarkers_user = place => {
     let marker = new this.maps.Marker({
@@ -22,20 +22,28 @@ class Map extends Component {
       title: 'Hello World!'
     })
     this.curr_mark.push(marker)
-    console.log(place['lati'])
-    marker.addListener('click', () => {
-      this.infowindow.setContent(
-        'Name: ' +
-          place['name'] +
-          '\n' +
-          'Gender:' +
-          place['gender'] +
-          '\n' +
-          'Interest:' +
-          place['interest'] +
-          '\n'
-      )
-      this.infowindow.open(this.map, marker)
+    var content = document.createElement('div'),
+      button
+    content.innerHTML =
+      '<p>Name: ' +
+      place['name'] +
+      '</p>' +
+      '<p>Gender: ' +
+      place['gender'] +
+      '</p>' +
+      '<p>Interest: ' +
+      place['interest'] +
+      '</p>' +
+      '<p>Common restaurants: ' +
+      place['common_restaurant'] +
+      '</p>'
+
+    this.maps.event.addListener(marker, 'click', () => {
+      this.infowindow.setOptions({
+        content: content,
+        map: this.map,
+        position: marker.position
+      })
     })
   }
 
@@ -51,10 +59,19 @@ class Map extends Component {
     this.curr_mark.push(marker)
     var content = document.createElement('div'),
       button
-    content.innerHTML = 'I sell  ' + place['name'] + '<br/>'
+    content.innerHTML =
+      '<p>Name: ' +
+      place['name'] +
+      '</p>' +
+      '<p>Address: ' +
+      place['address'] +
+      '</p>' +
+      '<p>Rating: ' +
+      place['rating'] +
+      '</p>'
     button = content.appendChild(document.createElement('input'))
     button.type = 'button'
-    button.value = 'click me!'
+    button.value = 'see detail!'
     this.maps.event.addDomListener(button, 'click', () => {
       this.myfunction(place['RID'])
     })
@@ -66,27 +83,13 @@ class Map extends Component {
         position: marker.position
       })
     })
-
-    // marker.addListener('click', () => {
-    //   this.infowindow.setContent(
-    //     'Name: ' +
-    //       place['name'] +
-    //       '\n' +
-    //       'Address:' +
-    //       place['address'] +
-    //       '\n' +
-    //       'Category:' +
-    //       place['categories']
-    //   )
-    //   this.infowindow.open(this.map, marker)
-    // })
   }
 
   myfunction = data => {
     console.log('myfucntion called')
     console.log(data)
     console.log(this)
-    this.props.submit(data)
+    this.props.infoWindowClickHandler(data)
   }
   clearCurrMarker = mar => {
     for (var i = 0; i < mar.length; i++) {
@@ -102,6 +105,7 @@ class Map extends Component {
     if (this.props.isNearUser) {
       for (var i = 0; i < results.length; i++) {
         console.log('hi')
+        console.log(results[i])
         this.renderMarkers_user(results[i])
       }
       distance = this.props.userDistance
