@@ -1,0 +1,32 @@
+body {
+    background-image: url("2.jpg");
+    background-repeat: no-repeat;
+
+}
+h1 {
+    font-size: 2.6em;
+    color: red;
+    position: absolute;
+    left: 100px;
+    top: 150px;
+}
+a.nav {
+      font-size: 0.5em;
+      /* -webkit-appearance: button; */
+      /* -moz-appearance: button; */
+      /* appearance: button; */
+
+      text-decoration: overline;
+      color: red;
+}
+
+a.nav:link {color: blue; text-decoration: none; }
+a.nav:visited {color: blue; text-decoration: none; }
+a.nav:hover {color: orange; text-decoration: underline; }
+a.nav:active {color: red; }
+#intro {
+    font-size: 1.3em;
+}
+.colorful {
+    color: orange;
+}
