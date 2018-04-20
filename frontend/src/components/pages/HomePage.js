@@ -2,13 +2,22 @@ import React from 'react'
 import { Link } from 'react-router-dom'
 
 const HomePage = () => (
-  <div>
-    <h1>
-      Welcome to the MealPat app, sign in to enjoy a wonderful meal experience.
+  <html>
+    <head>
+    </head>
+    <body>
+      <link rel="stylesheet" href="style.css"></link>
+    </body>
+    <h1>Welcome to the MealPat app, sign in to enjoy a wonderful meal experience.
+    <div>
+    <a href="login" class="nav">login</a>
+    </div>
+    <div>
+
+    <a href="signup" class="nav">Signup</a>
+    </div>
     </h1>
-    <Link to="/login">login</Link>
-    <text> or </text>
-    <Link to="/signup">SignUp</Link>
-  </div>
+
+  </html>
 )
 export default HomePage
