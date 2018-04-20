@@ -131,7 +131,7 @@ class Map extends Component {
           lat: this.props.defaultCenter[0],
           lng: this.props.defaultCenter[1]
         },
-        radius: parseInt(distance) * 0.8
+        radius: parseInt(distance) * 0.85
       })
       this.circle = cityCircle
     }

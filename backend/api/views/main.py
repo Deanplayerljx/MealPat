@@ -337,15 +337,18 @@ def get_near_user_list():
     args = request.args
     UID = 0
     distance = 0
+    center = []
     try:
         UID = args['UID']
         distance = int(args['distance'])
+        lati = args['lati']
+        longi = args['longi']
     except:
         return create_response(message='missing required components',status=411)
 
-    sql = text('select lati,longi from mealpat_user where "UID"=:uid')
-    origin_result = db.engine.execute(sql, uid = UID).first()
-    origins = str(origin_result[0]) + ',' + str(origin_result[1])
+
+    origins = str(lati) + ',' + str(longi)
+    print(origins)
     sql = text('select * from mealpat_user where "UID" <> :uid')
     result = db.engine.execute(sql,uid= UID)
     dest = ''
@@ -392,12 +395,13 @@ def get_near_rest_list():
     try:
         UID = args['UID']
         distance = int(args['distance'])
+        lati = args['lati']
+        longi = args['longi']
     except:
         return create_response(message='missing required components',status=411)
 
-    sql = text('select lati,longi from mealpat_user where "UID"=:uid')
-    origin_result = db.engine.execute(sql, uid = UID).first()
-    origins = str(origin_result[0]) + ',' + str(origin_result[1])
+
+    origins = str(lati) + ',' + str(longi)
     dest = ''
     i = 0
     user = []
