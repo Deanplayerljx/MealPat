@@ -72,10 +72,15 @@ class PostdetailPage extends React.Component {
 
   handleFindC = e => {
     console.log('handlefindc begin')
+    console.log(e)
     var self = this
     var data = {}
     data.cur_uid = self.state.CurrUID
-    data.clicked_uid = self.state.accompanies[e]
+    if (self.state.creatername == e[1]) {
+      data.clicked_uid = self.state.UID
+    } else {
+      data.clicked_uid = self.state.accompanies[e[0]]
+    }
     console.log(data)
     if (data.cur_uid != data.clicked_uid) {
       axios
@@ -99,7 +104,7 @@ class PostdetailPage extends React.Component {
     const accompanylist = self.accompanies_name.map((person, index) => {
       return (
         <li key={index}>
-          <a onClick={this.handleFindC.bind(this, index)}>{person}</a>
+          <a onClick={this.handleFindC.bind(this, [index, person])}>{person}</a>
         </li>
       )
     })
@@ -110,7 +115,12 @@ class PostdetailPage extends React.Component {
         <br />
         <span>
           CreaterName:&nbsp;
-          <a onClick={this.handleFindC.bind(this, this.state.UID)}>
+          <a
+            onClick={this.handleFindC.bind(this, [
+              this.state.UID,
+              this.state.creatername
+            ])}
+          >
             {this.state.creatername}
           </a>
         </span>
