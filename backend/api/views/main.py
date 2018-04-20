@@ -130,8 +130,11 @@ def sign_up():
 
     if request_json['gender'] == '':
         data['gender'] = None
-    else:
+    elif request_json['gender'] == "male" or request_json['gender'] == "female":
         data['gender'] = request_json['gender']
+    else:
+        return create_response(message='Gender format incorrect',status=411)
+
 
     if request_json['phonenumber'] == '':
         data['phonenumber'] = None
