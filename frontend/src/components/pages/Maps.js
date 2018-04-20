@@ -49,24 +49,45 @@ class Map extends Component {
       title: 'Hello World!'
     })
     this.curr_mark.push(marker)
-    marker.addListener('click', () => {
-      this.infowindow.setContent(
-        'Name: ' +
-          place['name'] +
-          '\n' +
-          'Address:' +
-          place['address'] +
-          '\n' +
-          'Rating:' +
-          place['rating'] +
-          '\n' +
-          'Category:' +
-          place['categories']
-      )
-      this.infowindow.open(this.map, marker)
+    var content = document.createElement('div'),
+      button
+    content.innerHTML = 'I sell  ' + place['name'] + '<br/>'
+    button = content.appendChild(document.createElement('input'))
+    button.type = 'button'
+    button.value = 'click me!'
+    this.maps.event.addDomListener(button, 'click', () => {
+      this.myfunction(place['RID'])
     })
+
+    this.maps.event.addListener(marker, 'click', () => {
+      this.infowindow.setOptions({
+        content: content,
+        map: this.map,
+        position: marker.position
+      })
+    })
+
+    // marker.addListener('click', () => {
+    //   this.infowindow.setContent(
+    //     'Name: ' +
+    //       place['name'] +
+    //       '\n' +
+    //       'Address:' +
+    //       place['address'] +
+    //       '\n' +
+    //       'Category:' +
+    //       place['categories']
+    //   )
+    //   this.infowindow.open(this.map, marker)
+    // })
   }
 
+  myfunction = data => {
+    console.log('myfucntion called')
+    console.log(data)
+    console.log(this)
+    this.props.submit(data)
+  }
   clearCurrMarker = mar => {
     for (var i = 0; i < mar.length; i++) {
       mar[i].setMap(null)

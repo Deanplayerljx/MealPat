@@ -232,6 +232,7 @@ class SearchPage extends React.Component {
             isNearUser={isNearUser}
             userDistance={this.state.userDistance}
             restaurantDistance={this.state.restaurantDistance}
+            submit={this.submit}
           />
         </div>
       </div>
