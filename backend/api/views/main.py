@@ -64,7 +64,7 @@ def connect():
 
 @socketio.on('message')
 def handle_message(data):
-    
+
     # add message to database
     sql = text('select messages from chatroom where "CID"=:cid')
     result = db.engine.execute(sql, cid=int(data['room'])).first()
@@ -331,8 +331,6 @@ def delete_post():
 
 @app.route(FIND_NEAR_USER)
 def get_near_user_list():
-    sql = text('select * from mealpat_user')
-    result = db.engine.execute(sql)
     args = request.args
     UID = 0
     distance = 0
@@ -345,6 +343,8 @@ def get_near_user_list():
     sql = text('select lati,longi from mealpat_user where "UID"=:uid')
     origin_result = db.engine.execute(sql, uid = UID).first()
     origins = str(origin_result[0]) + ',' + str(origin_result[1])
+    sql = text('select * from mealpat_user where "UID" <> :uid')
+    result = db.engine.execute(sql,uid= UID)
     dest = ''
     i = 0
     user = []

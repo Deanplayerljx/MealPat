@@ -119,7 +119,7 @@ class Map extends Component {
     if (this.circle != null) {
       this.circle.setMap(null)
     }
-    if (results.length > 0) {
+    if (results.length > 0 && !this.props.isSpecific) {
       var cityCircle = new this.maps.Circle({
         strokeColor: '#FF0000',
         strokeOpacity: 0.8,
@@ -134,6 +134,11 @@ class Map extends Component {
         radius: parseInt(distance) * 0.8
       })
       this.circle = cityCircle
+    }
+    if (this.props.isSpecific) {
+      this.map.setCenter({ lat: results[0]['lati'], lng: results[0]['longi'] })
+    } else if (this.map != null) {
+      this.map.setCenter({ lat: defaultCenter[0], lng: defaultCenter[1] })
     }
     return (
       <div style={{ height: '100vh' }}>

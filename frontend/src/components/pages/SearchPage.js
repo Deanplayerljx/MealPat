@@ -233,6 +233,7 @@ class SearchPage extends React.Component {
             userDistance={this.state.userDistance}
             restaurantDistance={this.state.restaurantDistance}
             infoWindowClickHandler={this.submit}
+            isSpecific={this.state.isSpecific}
           />
         </div>
       </div>
