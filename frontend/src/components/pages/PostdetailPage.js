@@ -89,7 +89,8 @@ class PostdetailPage extends React.Component {
           let result = response.data.result
           result['my_loc'] = self.state.user_loc
           result['target_uid'] = data.clicked_uid
-          self.setState({ clicked_user_info: response.data.result })
+          result['RID'] = self.state.RID
+          self.setState({ clicked_user_info: result })
           self.setState({ selected: true })
         })
         .catch(function(error) {
@@ -100,8 +101,8 @@ class PostdetailPage extends React.Component {
     }
   }
 
-  findRouteHandler = (my_loc, target_uid) => {
-    let data = { my_loc: my_loc, target_uid: target_uid }
+  findRouteHandler = (my_loc, target_uid, RID) => {
+    let data = { my_loc: my_loc, target_uid: target_uid, RID: RID }
     console.log(data)
     this.props.history.push({
       pathname: 'navigate',

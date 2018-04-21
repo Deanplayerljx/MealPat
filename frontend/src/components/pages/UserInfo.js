@@ -8,7 +8,11 @@ class UserInfo extends React.Component {
   }
 
   find_route = e => {
-    this.props.findRouteHandler(this.props.my_loc, this.props.target)
+    this.props.findRouteHandler(
+      this.props.my_loc,
+      this.props.target,
+      this.props.RID
+    )
   }
 
   render() {
