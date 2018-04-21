@@ -67,6 +67,7 @@ def connect():
 @socketio.on('message')
 def handle_message(data):
     # add message to database
+    print (data)
     message = data['message']
     room = data['room']
     cid = data['cid']

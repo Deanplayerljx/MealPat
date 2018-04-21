@@ -10,6 +10,7 @@ class Chatroom extends React.Component {
     this.state = props.location.state
     this.state['messages'] = []
     this.state['cur_message'] = ''
+    console.log(this.state)
     // this.socket = this.state.socket
     this.socket = io.connect('http://127.0.0.1:8000')
     this.socket.on('connect', () => {
@@ -84,8 +85,8 @@ class Chatroom extends React.Component {
     e.preventDefault()
     this.socket.send({
       message: this.state.cur_message,
-      room: this.state.room,
-      cid: this.state.cid,
+      room: this.state.CID,
+      cid: this.state.CID,
       is_individual: false
     })
     this.setState({
