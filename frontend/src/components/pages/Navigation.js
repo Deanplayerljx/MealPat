@@ -1,5 +1,7 @@
 import React, { Component } from 'react'
 import GoogleMapReact from 'google-map-react'
+import axios from 'axios'
+
 class Navigation extends Component {
   constructor(props) {
     super(props)
@@ -8,6 +10,7 @@ class Navigation extends Component {
     this.lati = []
     this.longi = []
     this.index = 0
+    this.state = { start: [], end: {}, midpoint: {} }
   }
   renderDirections = result => {
     var directionsRenderer = new this.maps.DirectionsRenderer({
@@ -85,16 +88,55 @@ class Navigation extends Component {
     // var directionsDisplay_2 = new this.maps.DirectionsRenderer();
     // directionsDisplay_2.setMap(this.map);
 
-    var start = [
-      { lat: 40.1122101, lng: -88.230256 },
-      { lat: 40.1092101, lng: -88.2292225 }
+    this.state.start = [
+      {
+        lat: this.props.location.state.my_loc[0],
+        lng: this.props.location.state.my_loc[1]
+      }
     ]
-    var end = { lat: 40.115557, lng: -88.2337529 }
-    var midpoint = {
-      lat: (start[0]['lat'] + start[1]['lat']) / 2,
-      lng: (start[0]['lng'] + start[1]['lng']) / 2
+    console.log(this.state)
+    let data = {
+      cur_uid: this.props.location.state.target_uid,
+      clicked_uid: this.props.location.state.target_uid
     }
-    this.setState({ start: start, end: end, midpoint: midpoint })
+    let self = this
+    let rid = this.props.location.state.RID
+    axios
+      .get('http://127.0.0.1:8000/user', { params: data })
+      .then(function(response) {
+        let result = response.data.result
+        let another_lati = result['lati']
+        let another_longi = result['longi']
+        var temp = self.state.start
+        temp.push({ lat: another_lati, lng: another_longi })
+        self.state.start = temp
+        console.log(self.state)
+        axios
+          .get('http://127.0.0.1:8000/restaurant/' + rid)
+          .then(function(response) {
+            var end = {
+              lat: response.data.result.lati,
+              lng: response.data.result.longi
+            }
+            var start = self.state.start
+            var midpoint = {
+              lat: (start[0]['lat'] + start[1]['lat']) / 2,
+              lng: (start[0]['lng'] + start[1]['lng']) / 2
+            }
+            self.state.end = end
+            self.state.midpoint = midpoint
+            console.log(self.state)
+            self.next_step(start, end, midpoint)
+          })
+          .catch(function(error) {
+            console.log(error)
+          })
+      })
+      .catch(function(error) {
+        console.log(error)
+      })
+  }
+  next_step = (start, end, midpoint) => {
     var absolute_start_1 = [
       start[0]['lat'] - end['lat'],
       start[0]['lng'] - end['lng']
