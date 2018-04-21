@@ -29,6 +29,8 @@ USER_HISTORY_URL = '/history/<int:uid>'
 USER_INFO_URL = '/user'
 FIND_NEAR_USER = '/findnearuser'
 FIND_NEAR_REST = '/findnearrest'
+GET_POSITION = '/get_location'
+CREATE_CHAT = '/individual_chat'
 
 # do constant checking
 def check_old_posts():
@@ -64,33 +66,55 @@ def connect():
 
 @socketio.on('message')
 def handle_message(data):
-
     # add message to database
-    sql = text('select messages from chatroom where "CID"=:cid')
-    result = db.engine.execute(sql, cid=int(data['room'])).first()
+    message = data['message']
+    room = data['room']
+    cid = data['cid']
+    is_individual = data['is_individual']
+    if is_individual:
+        sql = text('select messages from individual_chatroom where "CID"=:cid')
+        result = db.engine.execute(sql, cid=int(cid)).first()
+    else:
+        sql = text('select messages from chatroom where "CID"=:cid')
+        result = db.engine.execute(sql, cid=int(cid)).first()
     history_message= result[0]
-    print (type(history_message))
-    print (history_message)
-    print (data['message'])
     history_message.append(data['message'])
-    print (history_message)
-    print (data['room'])
     sql = text('update chatroom set messages=:history where "CID"=:cid')
-    result = db.engine.execute(sql, cid=int(data['room']),history=history_message)
+    result = db.engine.execute(sql, cid=int(cid),history=history_message)
     send(data['message'], broadcast=True, room=data['room'])
-    # print ('history: ' + history_message)
+
+@socketio.on('individual_message')
+def handle_individual_message(data):
+    # add message to database
+    sql = text('select messages from individual_chatroom where "CID"=:cid')
+    result = db.engine.execute(sql, cid=int(data['cid'])).first()
+    history_message= result[0]
+    history_message.append(data['message'])
+    sql = text('update individual_chatroom set messages=:history where "CID"=:cid')
+    result = db.engine.execute(sql, cid=int(data['cid']),history=history_message)
+    response = {'source': data['source'], 'target': data['target'], 'room': data['room']}
+    emit('individual_message', response, broadcast=True)
+    print ('another room')
+    print (data['room'])
+    send(data['message'], broadcast=True, room=data['room'])
 
 @socketio.on('join')
 def on_join(data):
     room = data['room']
     username = data['username']
+    cid = data['cid']
+    is_individual = data['is_individual']
+    print ('on join')
+    print (room)
     join_room(room)
-
     # fetch histories
-    sql = text('select messages from chatroom where "CID"=:cid')
-    result = db.engine.execute(sql, cid=int(room)).first()
+    if is_individual:
+        sql = text('select messages from individual_chatroom where "CID"=:cid')
+        result = db.engine.execute(sql, cid=int(cid)).first()
+    else:
+        sql = text('select messages from chatroom where "CID"=:cid')
+        result = db.engine.execute(sql, cid=int(cid)).first()
     history = result[0]
-
     response = {'username':username, 'history':history}
     emit('join', response, room=room)
 
@@ -423,3 +447,45 @@ def get_near_rest_list():
             dest = ''
             user[:] = []
     return create_response(return_list, status=200)
+
+@app.route(GET_POSITION)
+def get_position():
+    args = request.args
+    start_point = ''
+    data = {}
+    start_point = args['start_point']
+    # try:
+        
+    # except Exception as e:
+    #     return create_response(message=str(e),status=411)
+
+    map_url = 'https://maps.googleapis.com/maps/api/geocode/json?address=' + start_point + '&' + 'key=' + map_api_key
+    response = requests.request('GET', map_url)
+    json_object = response.json()
+    data['lati'] = json_object['results'][0]['geometry']['location']['lat']
+    data['longi'] = json_object['results'][0]['geometry']['location']['lng']
+    return create_response(data)
+
+@app.route(CREATE_CHAT, methods=['POST'])
+def create_individual_chat():
+    request_json = request.get_json()
+    source = request_json['source']
+    target = request_json['target']
+    try:
+        owner = request_json['owner']
+    except:
+        create_response(message='missing required components',status=411)
+    sql = text('select "CID", owners from individual_chatroom where owners=:owner1 or owners=:owner2')
+    result = db.engine.execute(sql, owner1=str(source)+'_'+str(target), owner2=str(target)+'_'+str(source)).first()
+    # need to create a new one
+    if result is None:
+        print ('individual does not exist')
+        # create a new chatroom and get back cid
+        sql = text('insert into individual_chatroom(messages, owners) \
+                values (:messages, :owners) returning "CID", owners')
+        result = db.engine.execute(sql, messages=[], owners=str(source)+'_'+str(target)).first()
+        cid = result.items()[0][1]
+        owners = result.items()[1][1]
+        return create_response({'CID':cid, 'owners':owners})
+    else:
+        return create_response({'CID':result[0], 'owners':result[1]})

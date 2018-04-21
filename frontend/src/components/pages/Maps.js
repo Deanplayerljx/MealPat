@@ -21,6 +21,7 @@ class Map extends Component {
       map: this.map,
       title: 'Hello World!'
     })
+    console.log(place)
     this.curr_mark.push(marker)
     var content = document.createElement('div'),
       button
@@ -37,6 +38,13 @@ class Map extends Component {
       '<p>Common restaurants: ' +
       place['common_restaurant'] +
       '</p>'
+
+    button = content.appendChild(document.createElement('input'))
+    button.type = 'button'
+    button.value = 'chat!'
+    this.maps.event.addDomListener(button, 'click', () => {
+      this.chatHandler(place['UID'])
+    })
 
     this.maps.event.addListener(marker, 'click', () => {
       this.infowindow.setOptions({
@@ -73,7 +81,7 @@ class Map extends Component {
     button.type = 'button'
     button.value = 'see detail!'
     this.maps.event.addDomListener(button, 'click', () => {
-      this.myfunction(place['RID'])
+      this.seeDetailHandler(place['RID'])
     })
 
     this.maps.event.addListener(marker, 'click', () => {
@@ -85,11 +93,12 @@ class Map extends Component {
     })
   }
 
-  myfunction = data => {
-    console.log('myfucntion called')
-    console.log(data)
-    console.log(this)
-    this.props.infoWindowClickHandler(data)
+  seeDetailHandler = data => {
+    this.props.detailWindowClickHandler(data)
+  }
+
+  chatHandler = data => {
+    this.props.chatWindowClickHandler(data)
   }
   clearCurrMarker = mar => {
     for (var i = 0; i < mar.length; i++) {

@@ -14,26 +14,22 @@ class Chatroom extends React.Component {
     this.socket = io.connect('http://127.0.0.1:8000')
     this.socket.on('connect', () => {
       console.log('connect success')
-      // console.log(this.state)
-      // console.log(this.socket)
       console.log(this.state.username)
       this.socket.emit('join', {
-        cid: this.state.CID,
-        room: this.state.CID,
+        room: this.state.room,
         username: this.state.username,
-        is_individual: false
+        cid: this.state.CID,
+        is_individual: true
       })
     })
     this.socket.on('message', msg => {
-      console.log(msg)
-      console.log('***')
       this.addMessage(msg)
     })
-    this.socket.on('join', response => {
-      this.handleJoin(response)
+    this.socket.on('join', username => {
+      this.handleJoin(username)
     })
 
-    this.socket.on('leave', response => {
+    this.socket.on('leave', username => {
       // this.handleJoin(username)
     })
     //  this.handleJoin = this.handleJoin.bind(this)
@@ -82,11 +78,14 @@ class Chatroom extends React.Component {
 
   handleSend = e => {
     e.preventDefault()
-    this.socket.send({
+    console.log('source')
+    console.log(this.state.source)
+    this.socket.emit('individual_message', {
+      source: this.state.source,
+      target: this.state.target,
       message: this.state.cur_message,
       room: this.state.room,
-      cid: this.state.cid,
-      is_individual: false
+      cid: this.state.CID
     })
     this.setState({
       cur_message: ''

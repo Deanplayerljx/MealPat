@@ -44,6 +44,7 @@ class DetailPage extends React.Component {
         data = response.data.result
         data.CurrUID = self.state.UID
         data.username = self.state.username
+        data.user_loc = self.state.user_loc
         console.log(data)
         self.props.history.push({
           pathname: 'postdetail',

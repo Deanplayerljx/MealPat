@@ -89,6 +89,19 @@ class ChatRoom(db.Model):
     def __repr__(self):
         return '<chatroom {}>'.format(self.CID)
 
+class IndividualChatRoom(db.Model):
+    """ChatRoom(CID, Messages)"""
+    __tablename__ = "individual_chatroom"
+
+    CID = db.Column(db.Integer, unique=True, primary_key=True)
+    messages = db.Column(ARRAY(db.String(100)))
+    owners = db.Column(db.String(10))
+    def __init__(self, data):
+            self.messages = data['messages']
+
+    def __repr__(self):
+        return '<chatroom {}>'.format(self.CID)
+
 class Post(db.Model):
     """Post(UID, RID, time, accompanies,CID)"""
     __tablename__ = "post"

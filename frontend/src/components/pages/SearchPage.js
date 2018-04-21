@@ -1,9 +1,18 @@
 import React from 'react'
-import { Search, Grid, Header, Button, Dropdown } from 'semantic-ui-react'
+import {
+  Search,
+  Grid,
+  Header,
+  Button,
+  Dropdown,
+  TextArea,
+  Form
+} from 'semantic-ui-react'
 import axios from 'axios'
 import Map from './Maps'
 import { Link } from 'react-router-dom'
 import '../../styles/searchPage.css'
+import io from 'socket.io-client'
 
 class SearchPage extends React.Component {
   constructor(props) {
@@ -21,9 +30,11 @@ class SearchPage extends React.Component {
       defaultCenter: [props.location.state.lati, props.location.state.longi],
       nearList: [],
       userDistance: 0,
-      restaurantDistance: 0
+      restaurantDistance: 0,
+      cur_start: '',
+      chatroom_list: []
     }
-    var self = this
+    let self = this
     axios
       .get('http://127.0.0.1:8000/search')
       .then(function(response) {
@@ -35,6 +46,32 @@ class SearchPage extends React.Component {
       .catch(function(error) {
         console.log(error)
       })
+    this.socket = io.connect('http://127.0.0.1:8000')
+    this.socket.on('connect', () => {
+      console.log('connect success')
+      console.log(this.state.username)
+    })
+    this.socket.on('individual_message', data => {
+      let room = data['room']
+      let cid = data['CID']
+      let target = data['target']
+      let source = data['source']
+      console.log('target:')
+      console.log(target)
+      if (target === this.state.UID) {
+        let chatroom = {
+          source: this.state.UID,
+          target: source,
+          CID: cid,
+          room: room,
+          username: this.state.username
+        }
+        let chatroom_list = this.state.chatroom_list
+        chatroom_list.push(chatroom)
+        this.setState(chatroom_list)
+        console.log('new message!!!')
+      }
+    })
   }
 
   submit = data => {
@@ -44,7 +81,7 @@ class SearchPage extends React.Component {
       .then(function(response) {
         response.data.result.UID = self.state.UID
         response.data.result.username = self.state.username
-
+        response.data.result.user_loc = self.state.defaultCenter
         console.log(response.data.result)
         self.props.history.push({
           pathname: '/detail',
@@ -80,9 +117,44 @@ class SearchPage extends React.Component {
       .catch(function(error) {
         console.log(error)
       })
+  }
 
-    // this.setState({ value: result.title, rid: result.price })
-    // this.submit(result.price)
+  handleChat = uid => {
+    // create a chat room
+    let params = {
+      source: this.state.UID,
+      target: uid
+    }
+    let self = this
+    axios
+      .post('http://127.0.0.1:8000/individual_chat', params)
+      .then(function(response) {
+        let cid = response.data.result.CID
+        let room = response.data.result.owners
+        console.log(room)
+        // socket io with backend
+        console.log('inside')
+        console.log(uid)
+        console.log(cid)
+        // this.socket.emit('individual_message', {
+        //   source: self.state.UID,
+        //   target: uid
+        // })
+        // jump to chat room
+        let data = {}
+        data.target = uid
+        data.source = self.state.UID
+        data.CID = cid
+        data.room = room
+        data.username = self.state.username
+        self.props.history.push({
+          pathname: 'individual_chat',
+          state: data
+        })
+      })
+      .catch(function(error) {
+        console.log(error)
+      })
   }
 
   handleSearchChange = (e, { value }) => {
@@ -173,6 +245,32 @@ class SearchPage extends React.Component {
     return filtered
   }
 
+  textChangeHandler = e => {
+    // console.log(e.target.value)
+    this.setState({ cur_start: e.target.value })
+  }
+
+  handleSetStart = e => {
+    let self = this
+    console.log(this.state)
+    let params = { start_point: this.state.cur_start }
+    console.log(params)
+    axios
+      .get('http://127.0.0.1:8000/get_location', (params = { params }))
+      .then(function(response) {
+        console.log(response)
+        self.setState({
+          defaultCenter: [
+            response.data.result['lati'],
+            response.data.result['longi']
+          ]
+        })
+      })
+      .catch(function(error) {
+        console.log(error)
+      })
+  }
+
   render() {
     const {
       isLoading,
@@ -180,7 +278,8 @@ class SearchPage extends React.Component {
       results,
       nearList,
       defaultCenter,
-      isNearUser
+      isNearUser,
+      cur_start
     } = this.state
 
     console.log(defaultCenter)
@@ -206,7 +305,18 @@ class SearchPage extends React.Component {
             placeholder="direct search"
             {...this.props}
           />
-
+          <Form
+            className="start-search"
+            onSubmit={this.handleSetStart.bind(this)}
+          >
+            <Form.Input
+              type="text"
+              onChange={this.textChangeHandler}
+              value={cur_start}
+              rows={1}
+              placeholder="your start location..."
+            />
+          </Form>
           <Dropdown
             options={dropdown_options}
             placeholder="find nearby users..."
@@ -237,8 +347,9 @@ class SearchPage extends React.Component {
             isNearUser={isNearUser}
             userDistance={this.state.userDistance}
             restaurantDistance={this.state.restaurantDistance}
-            infoWindowClickHandler={this.submit}
+            detailWindowClickHandler={this.submit}
             isSpecific={this.state.isSpecific}
+            chatWindowClickHandler={this.handleChat}
           />
         </div>
       </div>

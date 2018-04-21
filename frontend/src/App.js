@@ -10,7 +10,7 @@ import Chatroom from './components/pages/Chatroom'
 import PostdetailPage from './components/pages/PostdetailPage'
 import SimpleMap from './components/pages/Maps'
 import Navigation from './components/pages/Navigation'
-
+import IndividualChatroom from './components/pages/IndividualChatroom'
 const App = () => (
   <div className="ui container">
     <Route path="/" exact component={HomePage} />
@@ -22,6 +22,7 @@ const App = () => (
     <Route path="/postdetail" exact component={PostdetailPage} />
     <Route path="/map" exact component={SimpleMap} />
     <Route path="/navigate" exact component={Navigation} />
+    <Route path="/individual_chat" exact component={IndividualChatroom} />
   </div>
 )
 

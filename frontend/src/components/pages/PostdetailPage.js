@@ -14,6 +14,7 @@ class PostdetailPage extends React.Component {
       PID: props.location.state.PID,
       RID: props.location.state.RID,
       UID: props.location.state.UID,
+      user_loc: props.location.state.user_loc,
       accompanies: props.location.state.accompanies,
       accompanies_name: props.location.state.accompanies_name,
       time: props.location.state.time,
@@ -23,7 +24,17 @@ class PostdetailPage extends React.Component {
       creatername: props.location.state.creater_name,
       result: {}
     }
-    console.log(this.state)
+    // this.state.socket = io.connect('http://127.0.0.1:8000')
+    // this.state.socket.on('connect', () => {
+    //   console.log('connect success')
+    //   // console.log(this.state)
+    //   // console.log(this.socket)
+    //   this.state.socket.emit('join', {
+    //     room: this.state.CID,
+    //     username: this.state.username
+    //   })
+    // })
+    console.log('come to post detail')
     //this.state = props.location.state
   }
 
@@ -33,6 +44,7 @@ class PostdetailPage extends React.Component {
     var data = {}
     data.UID = this.state.CurrUID
     data.PID = this.state.PID
+    // data.socket = this.state.socket
     console.log(data)
     axios
       .put(`http://127.0.0.1:8000/join_post`, data)
@@ -51,10 +63,13 @@ class PostdetailPage extends React.Component {
   handleChat = index => {
     console.log('handleDelete')
     const self = this
+
     var data = {}
     data.UID = this.state.UID
     data.CID = this.state.CID
     data.username = this.state.username
+    data.user_loc = this.state.user_loc
+    // data.socket = this.state.socket
 
     this.props.history.push({
       pathname: 'chatroom',
