@@ -6,7 +6,9 @@ import {
   Button,
   Dropdown,
   TextArea,
-  Form
+  Form,
+  Rail,
+  Sticky
 } from 'semantic-ui-react'
 import axios from 'axios'
 import Map from './Maps'
@@ -58,6 +60,7 @@ class SearchPage extends React.Component {
       let source = data['source']
       console.log('target:')
       console.log(target)
+      console.log(data)
       if (target === this.state.UID) {
         let chatroom = {
           source: this.state.UID,
@@ -70,6 +73,7 @@ class SearchPage extends React.Component {
         chatroom_list.push(chatroom)
         this.setState(chatroom_list)
         console.log('new message!!!')
+        console.log(this.state.chatroom_list)
       }
     })
   }
@@ -270,7 +274,20 @@ class SearchPage extends React.Component {
         console.log(error)
       })
   }
-
+  handleSelectPChat = e => {
+    console.log('handprivate chate select')
+    console.log(e)
+    let data = {}
+    data.target = e.target
+    data.source = e.source
+    data.CID = e.CID
+    data.room = e.room
+    data.username = e.username
+    this.props.history.push({
+      pathname: 'individual_chat',
+      state: data
+    })
+  }
   render() {
     const {
       isLoading,
@@ -279,7 +296,8 @@ class SearchPage extends React.Component {
       nearList,
       defaultCenter,
       isNearUser,
-      cur_start
+      cur_start,
+      chatroom_list
     } = this.state
 
     console.log(defaultCenter)
@@ -290,53 +308,71 @@ class SearchPage extends React.Component {
       { value: '2000', text: 'in 2000 m' },
       { value: '5000', text: 'in 5000 m' }
     ]
+
+    const privateList = chatroom_list.map((info, index) => {
+      return (
+        <li key={index}>
+          <a onClick={this.handleSelectPChat.bind(this, info)}>info.room</a>
+        </li>
+      )
+    })
+
     return (
       <div>
         <h1> Start search now!</h1>
+        <Rail attached internal position="right">
+          <Sticky>
+            <h3>PrivateChatList:</h3>
+            <ul>{privateList}</ul>
+          </Sticky>
+        </Rail>
         <Grid>
-          <Search
-            size="small"
-            fluid
-            loading={isLoading}
-            onResultSelect={this.handleResultSelect}
-            onSearchChange={this.handleSearchChange}
-            results={results}
-            value={value}
-            placeholder="direct search"
-            {...this.props}
-          />
-          <Form
-            className="start-search"
-            onSubmit={this.handleSetStart.bind(this)}
-          >
-            <Form.Input
-              type="text"
-              onChange={this.textChangeHandler}
-              value={cur_start}
-              rows={1}
-              placeholder="your start location..."
+          <Grid.Row>
+            <Search
+              size="small"
+              fluid
+              loading={isLoading}
+              onResultSelect={this.handleResultSelect}
+              onSearchChange={this.handleSearchChange}
+              results={results}
+              value={value}
+              placeholder="direct search"
+              {...this.props}
             />
-          </Form>
-          <Dropdown
-            options={dropdown_options}
-            placeholder="find nearby users..."
-            onChange={this.handleSelectUserDist}
-            selection
-          />
-          <Button primary onClick={this.discoverUser}>
-            Discover User
-          </Button>
+            <Form
+              className="start-search"
+              onSubmit={this.handleSetStart.bind(this)}
+            >
+              <Form.Input
+                type="text"
+                onChange={this.textChangeHandler}
+                value={cur_start}
+                rows={1}
+                placeholder="your start location..."
+              />
+            </Form>
+          </Grid.Row>
+          <Grid.Row>
+            <Dropdown
+              options={dropdown_options}
+              placeholder="find nearby users..."
+              onChange={this.handleSelectUserDist}
+              selection
+            />
+            <Button primary onClick={this.discoverUser}>
+              Discover User
+            </Button>
 
-          <Dropdown
-            options={dropdown_options}
-            placeholder="find nearby restaurants..."
-            onChange={this.handleSelectRestaurantDist}
-            selection
-          />
-          <Button primary onClick={this.discoverRestaurant}>
-            Discover Restaurants
-          </Button>
-          <Link to="/login">Signout</Link>
+            <Dropdown
+              options={dropdown_options}
+              placeholder="find nearby restaurants..."
+              onChange={this.handleSelectRestaurantDist}
+              selection
+            />
+            <Button primary onClick={this.discoverRestaurant}>
+              Discover Restaurants
+            </Button>
+          </Grid.Row>
         </Grid>
         <div className="map">
           <Map

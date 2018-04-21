@@ -150,7 +150,7 @@ class Map extends Component {
       this.map.setCenter({ lat: defaultCenter[0], lng: defaultCenter[1] })
     }
     return (
-      <div style={{ height: '100vh' }}>
+      <div style={{ height: '100vh', width: '87%' }}>
         <GoogleMapReact
           bootstrapURLKeys={{
             key: 'AIzaSyA3W8W5I-E69cN5yZSUAbfA0ibHTfLJ2L0',
