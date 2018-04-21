@@ -102,7 +102,7 @@ def recreate_db():
     # t = User(1234,'wew','ww','wewe','wew','wewe')
     # db.session.add(t)
     # db.session.commit()
-    user_date = {'name':'dean', 'password':123, 'phonenumber':'', 'interest':'', 'gender':'', 'address':'','lati' : 40.1113161,'longi' : -88.2290516}
+    user_date = {'name':'dean', 'password':123, 'phonenumber':'', 'interest':'gaming', 'gender':'male', 'address':'campus circle, urbana, IL','lati' : 40.1165658,'longi' : -88.2219593}
     u1 = User(user_date)
     db.session.add(u1)
     db.session.commit()

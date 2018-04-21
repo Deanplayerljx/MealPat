@@ -324,7 +324,6 @@ class SearchPage extends React.Component {
             selection
           />
           <Button primary onClick={this.discoverUser}>
-            {' '}
             Discover User
           </Button>
 
@@ -335,7 +334,6 @@ class SearchPage extends React.Component {
             selection
           />
           <Button primary onClick={this.discoverRestaurant}>
-            {' '}
             Discover Restaurants
           </Button>
           <Link to="/login">Signout</Link>

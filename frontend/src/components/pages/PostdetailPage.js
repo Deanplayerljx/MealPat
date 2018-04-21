@@ -24,16 +24,6 @@ class PostdetailPage extends React.Component {
       creatername: props.location.state.creater_name,
       result: {}
     }
-    // this.state.socket = io.connect('http://127.0.0.1:8000')
-    // this.state.socket.on('connect', () => {
-    //   console.log('connect success')
-    //   // console.log(this.state)
-    //   // console.log(this.socket)
-    //   this.state.socket.emit('join', {
-    //     room: this.state.CID,
-    //     username: this.state.username
-    //   })
-    // })
     console.log('come to post detail')
     //this.state = props.location.state
   }
@@ -69,8 +59,6 @@ class PostdetailPage extends React.Component {
     data.CID = this.state.CID
     data.username = this.state.username
     data.user_loc = this.state.user_loc
-    // data.socket = this.state.socket
-
     this.props.history.push({
       pathname: 'chatroom',
       state: data
@@ -78,11 +66,6 @@ class PostdetailPage extends React.Component {
   }
   showCommon = e => {
     console.log('showcommon started')
-    if (this.state.selected) {
-      return <UserInfo result={this.state.result} />
-    } else {
-      return <p>You can select the user id to see their information</p>
-    }
   }
 
   handleFindC = e => {
@@ -98,11 +81,15 @@ class PostdetailPage extends React.Component {
     }
     console.log(data)
     if (data.cur_uid != data.clicked_uid) {
+      let self = this
       axios
         .get('http://127.0.0.1:8000/user', { params: data })
         .then(function(response) {
           console.log(response)
-          self.setState({ result: response.data.result })
+          let result = response.data.result
+          result['my_loc'] = self.state.user_loc
+          result['target_uid'] = data.clicked_uid
+          self.setState({ clicked_user_info: response.data.result })
           self.setState({ selected: true })
         })
         .catch(function(error) {
@@ -112,6 +99,16 @@ class PostdetailPage extends React.Component {
       alert('You have clicked yourself')
     }
   }
+
+  findRouteHandler = (my_loc, target_uid) => {
+    let data = { my_loc: my_loc, target_uid: target_uid }
+    console.log(data)
+    this.props.history.push({
+      pathname: 'navigate',
+      state: data
+    })
+  }
+
   render() {
     console.log('render is called')
     console.log(this.state)
@@ -123,6 +120,15 @@ class PostdetailPage extends React.Component {
         </li>
       )
     })
+    const userInfo = this.state.selected ? (
+      <UserInfo
+        user_info={this.state.clicked_user_info}
+        findRouteHandler={this.findRouteHandler}
+      />
+    ) : (
+      <p>You can select the user id to see their information</p>
+    )
+
     return (
       <div>
         <h1> Title: {this.state.title}</h1>
@@ -150,7 +156,7 @@ class PostdetailPage extends React.Component {
         <Button positive size="tiny" onClick={this.handleChat.bind(this)}>
           Start Chat!
         </Button>
-        <div>{this.showCommon()}</div>
+        <div>{userInfo}</div>
       </div>
     )
   }
