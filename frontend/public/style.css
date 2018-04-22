@@ -1,21 +1,30 @@
 body {
-    background-image: url("2.jpg");
+    background-image: url("3.jpg");
     background-repeat: no-repeat;
-
+    background-size: 100% 100%;
 }
 h1 {
-    font-size: 2.6em;
-    color: red;
+    font-size: 2.8em;
+    color: white;
     position: absolute;
-    left: 100px;
-    top: 150px;
+    left: 5%;
+    top: 38%;
 }
-a.nav {
-      font-size: 0.5em;
-      /* -webkit-appearance: button; */
-      /* -moz-appearance: button; */
-      /* appearance: button; */
 
+div.log{
+  left: 37%;
+  top: 58%;
+  position: absolute;
+}
+
+div.sign{
+  left: 48%;
+  top: 58%;
+  position: absolute;
+}
+
+a.nav {
+      font-size: 2.5em;
       text-decoration: overline;
       color: red;
 }

@@ -1,7 +1,9 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
 import LoginForm from '../forms/LoginForm'
+import { Button } from 'semantic-ui-react'
 import axios from 'axios'
+import '../../styles/login.css'
 
 class LoginPage extends React.Component {
   submit = data => {
@@ -23,11 +25,20 @@ class LoginPage extends React.Component {
         alert('Wrong password or user not exist')
       })
   }
+  handleback = e => {
+    console.log(this.props.history)
+    this.props.history.goBack()
+  }
   render() {
     return (
       <div>
-        <h1> loginpage</h1>
-        <LoginForm submit={this.submit} />
+        <Button onClick={this.handleback} className="back">
+          HomePage
+        </Button>
+        <div className="login">
+          <h1> loginpage</h1>
+          <LoginForm submit={this.submit} />
+        </div>
       </div>
     )
   }
