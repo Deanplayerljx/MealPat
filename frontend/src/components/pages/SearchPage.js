@@ -317,6 +317,9 @@ class SearchPage extends React.Component {
       state: data
     })
   }
+  handleSignout = e => {
+    this.props.history.replace('/')
+  }
   render() {
     const {
       isLoading,
@@ -368,7 +371,10 @@ class SearchPage extends React.Component {
       <div className="page-container">
         <div className="input-map-container">
           <div className="input-area">
-            <h1> Start search now!</h1>
+            <h1 className="headerS">Start search now!</h1>
+            <Button onClick={this.handleSignout} className="signout">
+              Sign Out
+            </Button>
             <div>
               <Search
                 className="semantic-component"

@@ -10,13 +10,13 @@ const HomePage = () => (
     <h1>
       Welcome to the MealPat app, sign in to enjoy a wonderful meal experience.
     </h1>
-    <div class="log">
-      <a href="login" class="nav">
+    <div className="log">
+      <a href="login" className="nav">
         login
       </a>
     </div>
-    <div class="sign">
-      <a href="signup" class="nav">
+    <div className="sign">
+      <a href="signup" className="nav">
         Signup
       </a>
     </div>

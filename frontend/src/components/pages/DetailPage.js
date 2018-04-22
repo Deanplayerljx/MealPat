@@ -130,9 +130,10 @@ class DetailPage extends React.Component {
     var postlist = this.state.posts
     return (
       <div>
+        <h1 className="headerD">{this.state.name}</h1>
         <Button onClick={this.handleGoback}>Goback</Button>
-        <h1>{this.state.name}</h1>
-        <img src={this.state.imageURL} width="400" height="300" />
+        <br />
+        <img src={this.state.imageURL} width="500" height="400" />
         <br />
         <span>Address:&nbsp; {this.state.address}</span>
         <br />
