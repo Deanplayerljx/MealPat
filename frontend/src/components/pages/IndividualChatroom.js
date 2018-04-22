@@ -86,7 +86,7 @@ class Chatroom extends React.Component {
     this.socket.emit('individual_message', {
       source: this.state.source,
       target: this.state.target,
-      message: this.state.cur_message,
+      message: this.state.username + ':' + this.state.cur_message,
       room: this.state.room,
       cid: this.state.CID,
       source_name: this.state.username
