@@ -1,5 +1,5 @@
 import React from 'react'
-import './../../styles/detail.css'
+import './../../styles/postdetail.css'
 import { Form, Button } from 'semantic-ui-react'
 import axios from 'axios'
 import io from 'socket.io-client'
@@ -129,13 +129,14 @@ class PostdetailPage extends React.Component {
         findRouteHandler={this.findRouteHandler}
       />
     ) : (
-      <p>You can select the user id to see their information</p>
+      <span>You can select the user id to see their information</span>
     )
 
     return (
-      <div>
+      <div className="pdcontainer">
+        <h1 className="headerP"> Title: {this.state.title}</h1>
         <Button onClick={this.handleGoback}>Goback</Button>
-        <h1> Title: {this.state.title}</h1>
+        <br />
         <span>Time:&nbsp; {self.time}</span>
         <br />
         <span>
