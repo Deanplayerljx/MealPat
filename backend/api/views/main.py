@@ -63,6 +63,9 @@ atexit.register(lambda: scheduler.shutdown())
 def connect():
     print ('connect...')
 
+@socketio.on('disconnect')
+def test_disconnect():
+    print('Client disconnected')
 
 @socketio.on('message')
 def handle_message(data):
@@ -93,7 +96,7 @@ def handle_individual_message(data):
     history_message.append(data['message'])
     sql = text('update individual_chatroom set messages=:history where "CID"=:cid')
     result = db.engine.execute(sql, cid=int(data['cid']),history=history_message)
-    response = {'source': data['source'], 'target': data['target'], 'room': data['room'], 'CID':data['cid']}
+    response = {'source': data['source'], 'target': data['target'], 'room': data['room'], 'CID':data['cid'], 'source_name':data['source_name']}
     emit('individual_message', response, broadcast=True)
     print ('another room')
     print (data['room'])
@@ -106,6 +109,7 @@ def on_join(data):
     cid = data['cid']
     is_individual = data['is_individual']
     print ('on join')
+    print (username)
     print (room)
     join_room(room)
     # fetch histories
@@ -389,7 +393,6 @@ def get_near_user_list():
         result = db.engine.execute(sql, uid1=UID, uid2=cur_user['UID'])
         rows = result.fetchall()
         if len(rows) == 0:
-            print ('hiiiii')
             cur_user['common_restaurant'] = 'None'
         else:
             common_restaurant = [row[0] for row in result]
@@ -480,7 +483,6 @@ def create_individual_chat():
     result = db.engine.execute(sql, owner1=str(source)+'_'+str(target), owner2=str(target)+'_'+str(source)).first()
     # need to create a new one
     if result is None:
-        print ('individual does not exist')
         # create a new chatroom and get back cid
         sql = text('insert into individual_chatroom(messages, owners) \
                 values (:messages, :owners) returning "CID", owners')

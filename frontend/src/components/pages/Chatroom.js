@@ -25,6 +25,10 @@ class Chatroom extends React.Component {
         is_individual: false
       })
     })
+    this.socket.on('disconnect', function() {
+      console.log('user disconnected')
+    })
+
     this.socket.on('message', msg => {
       console.log(msg)
       console.log('***')
@@ -35,7 +39,7 @@ class Chatroom extends React.Component {
     })
 
     this.socket.on('leave', response => {
-      // this.handleJoin(username)
+      this.handleLeave(response)
     })
     //  this.handleJoin = this.handleJoin.bind(this)
   }
@@ -93,6 +97,13 @@ class Chatroom extends React.Component {
     })
   }
   handleGoback = e => {
+    this.socket.emit('leave', {
+      cid: this.state.CID,
+      room: this.state.CID,
+      username: this.state.username,
+      is_individual: false
+    })
+    this.socket.disconnect()
     this.props.history.goBack()
   }
 

@@ -4,3 +4,27 @@
 .ui.grid{
   max-width: 85%
 }
+
+.container {
+    display: flex;
+}
+
+.chatroom-list-container {
+    flex: 30%
+    display: flex;
+    flex-direction: column;
+}
+
+.title {
+    display: inline-block;   
+}
+
+.chatroom-list {
+    display: inline-block;
+}
+
+.input-map-container {
+    flex: 70%
+    display: flex;
+    flex-direction: column; 
+}

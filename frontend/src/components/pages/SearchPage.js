@@ -36,6 +36,8 @@ class SearchPage extends React.Component {
       cur_start: '',
       chatroom_list: []
     }
+    console.log('enter search page')
+    console.log(this.state)
     let self = this
     axios
       .get('http://127.0.0.1:8000/search')
@@ -58,16 +60,15 @@ class SearchPage extends React.Component {
       let cid = data['CID']
       let target = data['target']
       let source = data['source']
-      console.log('target:')
-      console.log(target)
-      console.log(data)
+      let source_name = data['source_name']
       if (target === this.state.UID) {
         let chatroom = {
           source: this.state.UID,
           target: source,
           CID: cid,
           room: room,
-          username: this.state.username
+          username: this.state.username,
+          source_name: source_name
         }
         let chatroom_list = this.state.chatroom_list
         chatroom_list.push(chatroom)
@@ -87,6 +88,7 @@ class SearchPage extends React.Component {
         response.data.result.username = self.state.username
         response.data.result.user_loc = self.state.defaultCenter
         console.log(response.data.result)
+        self.socket.disconnect()
         self.props.history.push({
           pathname: '/detail',
           state: response.data.result
@@ -136,14 +138,7 @@ class SearchPage extends React.Component {
         let cid = response.data.result.CID
         let room = response.data.result.owners
         console.log(room)
-        // socket io with backend
-        console.log('inside')
-        console.log(uid)
-        console.log(cid)
-        // this.socket.emit('individual_message', {
-        //   source: self.state.UID,
-        //   target: uid
-        // })
+        self.socket.disconnect()
         // jump to chat room
         let data = {}
         data.target = uid
@@ -277,6 +272,7 @@ class SearchPage extends React.Component {
   handleSelectPChat = e => {
     console.log('handprivate chate select')
     console.log(e)
+    this.socket.disconnect()
     let data = {}
     data.target = e.target
     data.source = e.source
@@ -302,9 +298,9 @@ class SearchPage extends React.Component {
 
     console.log(defaultCenter)
     const dropdown_options = [
-      { value: '100', text: 'in 100 m' },
       { value: '500', text: 'in 500 m' },
       { value: '1000', text: 'in 1000 m' },
+      { value: '1500', text: 'in 1500 m' },
       { value: '2000', text: 'in 2000 m' },
       { value: '5000', text: 'in 5000 m' }
     ]
@@ -312,79 +308,85 @@ class SearchPage extends React.Component {
     const privateList = chatroom_list.map((info, index) => {
       return (
         <li key={index}>
-          <a onClick={this.handleSelectPChat.bind(this, info)}>info.room</a>
+          <a onClick={this.handleSelectPChat.bind(this, info)}>
+            From {info.source_name}
+          </a>
         </li>
       )
     })
 
     return (
-      <div>
-        <h1> Start search now!</h1>
-        <Rail attached internal position="right">
-          <Sticky>
-            <h3>PrivateChatList:</h3>
-            <ul>{privateList}</ul>
-          </Sticky>
-        </Rail>
-        <Grid>
-          <Grid.Row>
-            <Search
-              size="small"
-              fluid
-              loading={isLoading}
-              onResultSelect={this.handleResultSelect}
-              onSearchChange={this.handleSearchChange}
-              results={results}
-              value={value}
-              placeholder="direct search"
-              {...this.props}
-            />
-            <Form
-              className="start-search"
-              onSubmit={this.handleSetStart.bind(this)}
-            >
-              <Form.Input
-                type="text"
-                onChange={this.textChangeHandler}
-                value={cur_start}
-                rows={1}
-                placeholder="your start location..."
+      <div className="page-container">
+        <div className="input-map-container">
+          <div className="input-area">
+            <h1> Start search now!</h1>
+            <div>
+              <Search
+                className="semantic-component"
+                size="small"
+                fluid
+                loading={isLoading}
+                onResultSelect={this.handleResultSelect}
+                onSearchChange={this.handleSearchChange}
+                results={results}
+                value={value}
+                placeholder="direct search"
+                {...this.props}
               />
-            </Form>
-          </Grid.Row>
-          <Grid.Row>
-            <Dropdown
-              options={dropdown_options}
-              placeholder="find nearby users..."
-              onChange={this.handleSelectUserDist}
-              selection
-            />
-            <Button primary onClick={this.discoverUser}>
-              Discover User
-            </Button>
+              <Form
+                className="semantic-component"
+                onSubmit={this.handleSetStart.bind(this)}
+              >
+                <Form.Input
+                  className="semantic-component"
+                  type="text"
+                  onChange={this.textChangeHandler}
+                  value={cur_start}
+                  rows={1}
+                  placeholder="your start location..."
+                />
+              </Form>
+            </div>
+            <div>
+              <Dropdown
+                className="semantic-component"
+                options={dropdown_options}
+                placeholder="find nearby users..."
+                onChange={this.handleSelectUserDist}
+                selection
+              />
+              <Button primary onClick={this.discoverUser}>
+                Discover User
+              </Button>
 
-            <Dropdown
-              options={dropdown_options}
-              placeholder="find nearby restaurants..."
-              onChange={this.handleSelectRestaurantDist}
-              selection
+              <Dropdown
+                className="semantic-component"
+                options={dropdown_options}
+                placeholder="find nearby restaurants..."
+                onChange={this.handleSelectRestaurantDist}
+                selection
+              />
+              <Button primary onClick={this.discoverRestaurant}>
+                Discover Restaurants
+              </Button>
+            </div>
+          </div>
+          <div className="map">
+            <Map
+              nearList={nearList}
+              defaultCenter={this.state.defaultCenter}
+              isNearUser={isNearUser}
+              userDistance={this.state.userDistance}
+              restaurantDistance={this.state.restaurantDistance}
+              detailWindowClickHandler={this.submit}
+              isSpecific={this.state.isSpecific}
+              chatWindowClickHandler={this.handleChat}
             />
-            <Button primary onClick={this.discoverRestaurant}>
-              Discover Restaurants
-            </Button>
-          </Grid.Row>
-        </Grid>
-        <div className="map">
-          <Map
-            nearList={nearList}
-            defaultCenter={this.state.defaultCenter}
-            isNearUser={isNearUser}
-            userDistance={this.state.userDistance}
-            restaurantDistance={this.state.restaurantDistance}
-            detailWindowClickHandler={this.submit}
-            isSpecific={this.state.isSpecific}
-            chatWindowClickHandler={this.handleChat}
-          />
+          </div>
+        </div>
+        <div className="chatroom-list-container">
+          <h3 className="title">Private Chats:</h3>
+          <ul className="chatroom-list">{privateList}</ul>
         </div>
       </div>
     )

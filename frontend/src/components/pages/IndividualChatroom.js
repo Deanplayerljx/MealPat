@@ -22,15 +22,18 @@ class Chatroom extends React.Component {
         is_individual: true
       })
     })
+    this.socket.on('disconnect', function() {
+      console.log('user disconnected')
+    })
     this.socket.on('message', msg => {
       this.addMessage(msg)
     })
-    this.socket.on('join', username => {
-      this.handleJoin(username)
+    this.socket.on('join', response => {
+      this.handleJoin(response)
     })
 
-    this.socket.on('leave', username => {
-      // this.handleJoin(username)
+    this.socket.on('leave', response => {
+      this.handleLeave(response)
     })
     //  this.handleJoin = this.handleJoin.bind(this)
   }
@@ -85,12 +88,25 @@ class Chatroom extends React.Component {
       target: this.state.target,
       message: this.state.cur_message,
       room: this.state.room,
-      cid: this.state.CID
+      cid: this.state.CID,
+      source_name: this.state.username
     })
     this.setState({
       cur_message: ''
     })
   }
+
+  handleGoback = e => {
+    this.socket.emit('leave', {
+      cid: this.state.CID,
+      room: this.state.room,
+      username: this.state.username,
+      is_individual: true
+    })
+    this.socket.disconnect()
+    this.props.history.goBack()
+  }
+
   render() {
     // console.log(this.state)
     console.log(this.state.messages)
@@ -100,7 +116,12 @@ class Chatroom extends React.Component {
 
     return (
       <div className="container">
-        <h1> Chatroom</h1>
+        <h1>
+          <Button className="leave" onClick={this.handleGoback}>
+            Leave
+          </Button>{' '}
+          Chatroom
+        </h1>
         <div className="message-list">
           <ul>{messages}</ul>
         </div>
