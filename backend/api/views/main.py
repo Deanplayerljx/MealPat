@@ -93,7 +93,7 @@ def handle_individual_message(data):
     history_message.append(data['message'])
     sql = text('update individual_chatroom set messages=:history where "CID"=:cid')
     result = db.engine.execute(sql, cid=int(data['cid']),history=history_message)
-    response = {'source': data['source'], 'target': data['target'], 'room': data['room']}
+    response = {'source': data['source'], 'target': data['target'], 'room': data['room'], 'CID':data['cid']}
     emit('individual_message', response, broadcast=True)
     print ('another room')
     print (data['room'])
