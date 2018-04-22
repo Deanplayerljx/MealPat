@@ -95,7 +95,9 @@ class IndividualChatRoom(db.Model):
 
     CID = db.Column(db.Integer, unique=True, primary_key=True)
     messages = db.Column(ARRAY(db.String(100)))
-    owners = db.Column(db.String(10))
+    room_name = db.Column(db.String(20))
+    owner1 = db.Column(db.Integer)
+    owner2 = db.Column(db.Integer)
     def __init__(self, data):
             self.messages = data['messages']
 

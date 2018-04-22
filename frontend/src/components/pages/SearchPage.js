@@ -318,6 +318,7 @@ class SearchPage extends React.Component {
     })
   }
   handleSignout = e => {
+    this.socket.disconnect()
     this.props.history.replace('/')
   }
   render() {

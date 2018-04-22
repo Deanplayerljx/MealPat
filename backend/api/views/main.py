@@ -31,7 +31,7 @@ FIND_NEAR_USER = '/findnearuser'
 FIND_NEAR_REST = '/findnearrest'
 GET_POSITION = '/get_location'
 CREATE_CHAT = '/individual_chat'
-
+FIND_PRIVATE_CHAT = '/private_chat/<int:uid>'
 # do constant checking
 def check_old_posts():
     sql = text('select * from post where time < CURRENT_TIMESTAMP')
@@ -75,14 +75,15 @@ def handle_message(data):
     room = data['room']
     cid = data['cid']
     is_individual = data['is_individual']
-    if is_individual:
-        sql = text('select messages from individual_chatroom where "CID"=:cid')
-        result = db.engine.execute(sql, cid=int(cid)).first()
-    else:
-        sql = text('select messages from chatroom where "CID"=:cid')
-        result = db.engine.execute(sql, cid=int(cid)).first()
+    # if is_individual:
+    #     sql = text('select messages from individual_chatroom where "CID"=:cid')
+    #     result = db.engine.execute(sql, cid=int(cid)).first()
+    # else:
+    sql = text('select messages from chatroom where "CID"=:cid')
+    result = db.engine.execute(sql, cid=int(cid)).first()
     history_message= result[0]
     history_message.append(data['message'])
+    # WARNING
     sql = text('update chatroom set messages=:history where "CID"=:cid')
     result = db.engine.execute(sql, cid=int(cid),history=history_message)
     send(data['message'], broadcast=True, room=data['room'])
@@ -153,7 +154,6 @@ def sign_up():
         map_url = 'https://maps.googleapis.com/maps/api/geocode/json?address=' + request_json['address'] + '&' + 'key=' + map_api_key
         response = requests.request('GET', map_url)
         json_object = response.json()
-        print(json_object)
         data['lati'] = json_object['results'][0]['geometry']['location']['lat']
         data['longi'] = json_object['results'][0]['geometry']['location']['lng']
 
@@ -204,7 +204,6 @@ def log_in():
     if result is None:
         return create_response(message='user not exist', status=411)
     else:
-        print (result)
         return create_response({'UID':result[0], 'lati':result[1], 'longi':result[2]}, status=200)
 
 # get a list of restaurant basic info for search page
@@ -305,7 +304,6 @@ def create_post():
             values (:time, :title, :uid, :rid, :cid, :accompanies) returning "PID"')
     result = db.engine.execute(sql, time=data['time'], title=data['title'], uid=data['UID'], rid=data['RID'], cid=cid, accompanies=[]).first()
     pid = result.items()[0][1]
-    print (pid)
     # return the pid
     return create_response({"PID":pid}, status=200)
 
@@ -323,7 +321,6 @@ def join_post():
     result = db.engine.execute(sql, pid=data['PID']).first()
     accompanies = result.items()[0][1]
     post_owner = result.items()[1][1]
-    print (accompanies)
 
     if post_owner == data['UID']:
         return create_response(message='you are the owner', status=411)
@@ -351,7 +348,6 @@ def delete_post():
     sql = text('delete from post where "PID"=:pid and "UID"=:uid returning "CID"')
     result = db.engine.execute(sql, pid=data['PID'], uid=data['UID'])
 
-    print (result.rowcount)
     if result.rowcount == 0:
         return create_response(message='user does not own the post', status=411)
 
@@ -377,7 +373,6 @@ def get_near_user_list():
 
 
     origins = str(lati) + ',' + str(longi)
-    print(origins)
     sql = text('select * from mealpat_user where "UID" <> :uid')
     result = db.engine.execute(sql,uid= UID)
     dest = ''
@@ -401,9 +396,7 @@ def get_near_user_list():
     dest = dest[:-1]
     url = 'https://maps.googleapis.com/maps/api/distancematrix/json?units=imperial&origins=' + origins + '&destinations=' + dest + '&key=' + map_api_key
     response = requests.request('GET', url)
-    print (response)
     json_object = response.json()
-    print(json_object)
     return_list = []
     for j in range(i):
         try:
@@ -473,22 +466,44 @@ def get_position():
 @app.route(CREATE_CHAT, methods=['POST'])
 def create_individual_chat():
     request_json = request.get_json()
-    source = request_json['source']
-    target = request_json['target']
     try:
-        owner = request_json['owner']
+        source = request_json['source']
+        target = request_json['target']
     except:
         create_response(message='missing required components',status=411)
-    sql = text('select "CID", owners from individual_chatroom where owners=:owner1 or owners=:owner2')
-    result = db.engine.execute(sql, owner1=str(source)+'_'+str(target), owner2=str(target)+'_'+str(source)).first()
+    sql = text('select "CID", room_name from individual_chatroom where room_name=:name1 or room_name=:name2')
+    result = db.engine.execute(sql, name1=str(source)+'_'+str(target), name2=str(target_)+'_'+str(source)).first()
     # need to create a new one
     if result is None:
         # create a new chatroom and get back cid
-        sql = text('insert into individual_chatroom(messages, owners) \
-                values (:messages, :owners) returning "CID", owners')
-        result = db.engine.execute(sql, messages=[], owners=str(source)+'_'+str(target)).first()
+        sql = text('insert into individual_chatroom(messages, room_name, owner1, owner2) \
+                values (:messages, :room_name, :owner1, :owner2) returning "CID", room_name')
+        result = db.engine.execute(sql, messages=[], room_name=str(source)+'_'+str(target), owner1=source, owner2=target).first()
         cid = result.items()[0][1]
-        owners = result.items()[1][1]
-        return create_response({'CID':cid, 'owners':owners})
+        room_name = result.items()[1][1]
+        return create_response({'CID':cid, 'room_name':room_name})
     else:
-        return create_response({'CID':result[0], 'owners':result[1]})
+        return create_response({'CID':result[0], 'room_name':result[1]})
+
+@app.route(FIND_PRIVATE_CHAT)
+def find_private_chat(uid):
+    sql = text('select * from individual_chatroom where owner1=:owner or owner2=:owner')
+    result = db.engine.execute(sql, owner=uid).fetchall()
+    chatroom_list = []
+    for row in result:
+        source = None
+        if row[3] == uid:
+            source = row[4]
+        elif row[4] == uid:
+            source = row[3]
+        sql = text('select name from mealpat_user where "UID"=:source')
+        source_name = db.engine.execute(sql, source=source).first()[0]
+        chatroom = {
+            'source':source,
+            'target': uid,
+            'room': row[2],
+            'CID': row[0],
+            'source_name': source_name
+        }
+        chatroom_list.append(chatroom)
+    return create_response({'chatroom_list': chatroom_list})
