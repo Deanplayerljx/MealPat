@@ -36,6 +36,7 @@ class SearchPage extends React.Component {
       cur_start: '',
       chatroom_list: []
     }
+
     console.log('enter search page')
     console.log(this.state)
     let self = this
@@ -61,22 +62,57 @@ class SearchPage extends React.Component {
       let target = data['target']
       let source = data['source']
       let source_name = data['source_name']
+      let chatroom_list = this.state.chatroom_list
       if (target === this.state.UID) {
-        let chatroom = {
-          source: this.state.UID,
-          target: source,
-          CID: cid,
-          room: room,
-          username: this.state.username,
-          source_name: source_name
+        let new_chat = true
+        let old_chat_idx = null
+        for (let idx = 0; idx < chatroom_list.length; idx++) {
+          if (chatroom_list[idx]['CID'] == cid) {
+            new_chat = false
+            old_chat_idx = idx
+            break
+          }
         }
-        let chatroom_list = this.state.chatroom_list
-        chatroom_list.push(chatroom)
+        if (new_chat) {
+          let chatroom = {
+            source: this.state.UID,
+            target: source,
+            CID: cid,
+            room: room,
+            username: this.state.username,
+            source_name: source_name,
+            new_message: true
+          }
+          chatroom_list.push(chatroom)
+        } else {
+          chatroom_list[old_chat_idx]['new_message'] = true
+        }
         this.setState(chatroom_list)
         console.log('new message!!!')
         console.log(this.state.chatroom_list)
       }
     })
+  }
+
+  componentDidMount() {
+    // loading private chat rooms
+    console.log('DID MOUNT')
+    let self = this
+    axios
+      .get('http://127.0.0.1:8000/private_chat/' + self.state.UID)
+      .then(function(response) {
+        console.log(response)
+        let chatroom_list = response.data.result.chatroom_list
+        chatroom_list.map((chatroom, idx) => {
+          chatroom['new_message'] = false
+          chatroom['username'] = self.state.username
+          chatroom['target'] = chatroom['source']
+          chatroom['source'] = self.state.UID
+          return chatroom
+        })
+        console.log(chatroom_list)
+        self.setState({ chatroom_list: chatroom_list })
+      })
   }
 
   submit = data => {
@@ -98,9 +134,6 @@ class SearchPage extends React.Component {
       .catch(function(error) {
         console.log(error)
       })
-  }
-  componentWillMount() {
-    this.resetComponent()
   }
 
   resetComponent = () => {
@@ -136,7 +169,7 @@ class SearchPage extends React.Component {
       .post('http://127.0.0.1:8000/individual_chat', params)
       .then(function(response) {
         let cid = response.data.result.CID
-        let room = response.data.result.owners
+        let room = response.data.result.room_name
         console.log(room)
         self.socket.disconnect()
         // jump to chat room
@@ -306,13 +339,29 @@ class SearchPage extends React.Component {
     ]
 
     const privateList = chatroom_list.map((info, index) => {
-      return (
-        <li key={index}>
-          <a onClick={this.handleSelectPChat.bind(this, info)}>
-            From {info.source_name}
-          </a>
-        </li>
-      )
+      if (info['new_message']) {
+        return (
+          <li key={index}>
+            <a
+              onClick={this.handleSelectPChat.bind(this, info)}
+              style={{ color: 'red' }}
+            >
+              From {info.source_name}
+            </a>
+          </li>
+        )
+      } else {
+        return (
+          <li key={index}>
+            <a
+              onClick={this.handleSelectPChat.bind(this, info)}
+              style={{ color: 'blue' }}
+            >
+              From {info.source_name}
+            </a>
+          </li>
+        )
+      }
     })
 
     return (
