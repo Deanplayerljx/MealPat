@@ -9,12 +9,12 @@
 }
 
 .title {
-  display: inline-block; 
+  display: inline-block;
   text-align: center;
   }
 
 .chatroom-list {
-  display: inline-block; 
+  display: inline-block;
   padding-top: 10px;
   text-align: center;
   }
@@ -28,4 +28,14 @@
 .semantic-component {
   display: inline-block;
   margin: 0 10px 0 0;
+}
+h1.headerS{
+  width: 50%;
+  display: inline-block;
+  margin-top: 15px;
+
+}
+.ui.button.signout{
+margin-top: 15px;
+float:right;
 }
