@@ -40,7 +40,6 @@ class Chatroom extends React.Component {
     //  this.handleJoin = this.handleJoin.bind(this)
   }
   componentDidMount() {}
-  handleSend = e => {}
 
   handleJoin = data => {
     if (data['username'] === this.state.username) {
@@ -84,7 +83,7 @@ class Chatroom extends React.Component {
   handleSend = e => {
     e.preventDefault()
     this.socket.send({
-      message: this.state.cur_message,
+      message: this.state.username + ':' + this.state.cur_message,
       room: this.state.CID,
       cid: this.state.CID,
       is_individual: false
@@ -93,6 +92,10 @@ class Chatroom extends React.Component {
       cur_message: ''
     })
   }
+  handleGoback = e => {
+    this.props.history.goBack()
+  }
+
   render() {
     // console.log(this.state)
     console.log(this.state.messages)
@@ -102,7 +105,12 @@ class Chatroom extends React.Component {
 
     return (
       <div className="container">
-        <h1> Chatroom</h1>
+        <h1>
+          <Button className="leave" onClick={this.handleGoback}>
+            Leave
+          </Button>{' '}
+          Chatroom
+        </h1>
         <div className="message-list">
           <ul>{messages}</ul>
         </div>

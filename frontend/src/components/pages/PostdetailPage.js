@@ -109,7 +109,9 @@ class PostdetailPage extends React.Component {
       state: data
     })
   }
-
+  handleGoback = e => {
+    this.props.history.goBack()
+  }
   render() {
     console.log('render is called')
     console.log(this.state)
@@ -132,6 +134,7 @@ class PostdetailPage extends React.Component {
 
     return (
       <div>
+        <Button onClick={this.handleGoback}>Goback</Button>
         <h1> Title: {this.state.title}</h1>
         <span>Time:&nbsp; {self.time}</span>
         <br />

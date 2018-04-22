@@ -32,6 +32,7 @@ class DetailPage extends React.Component {
     this.state.posttitle = ''
     this.state.posttime = ''
     console.log(this.state)
+    console.log(this.props)
     //  this.handleJoin = this.handleJoin.bind(this)
   }
   handleDetail = index => {
@@ -121,11 +122,15 @@ class DetailPage extends React.Component {
         console.log(error)
       })
   }
+  handleGoback = e => {
+    this.props.history.goBack()
+  }
   render() {
     console.log(this.state)
     var postlist = this.state.posts
     return (
       <div>
+        <Button onClick={this.handleGoback}>Goback</Button>
         <h1>{this.state.name}</h1>
         <img src={this.state.imageURL} width="400" height="300" />
         <br />
