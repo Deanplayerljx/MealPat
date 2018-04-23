@@ -13,11 +13,7 @@ class DetailPage extends React.Component {
     imageURL: '',
     name: 'hamburge',
     phonenumber: '',
-    posts: [
-      [1, 'have fun', 'Sun, 25 Mar 2018 20:04:18 GMT'],
-      [3, 'have fun', 'Sun, 25 Mar 2018 20:04:18 GMT'],
-      [2, 'have fun', 'Sun, 25 Mar 2018 20:04:18 GMT']
-    ],
+    posts: [],
     price: '',
     rating: '',
     errors: '',
@@ -161,7 +157,7 @@ class DetailPage extends React.Component {
                   size="tiny"
                   onClick={this.handleDelete.bind(this, index)}
                 >
-                  Quit!
+                  Delete!
                 </Button>
               </li>
             )
