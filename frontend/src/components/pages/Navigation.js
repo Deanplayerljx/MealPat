@@ -215,8 +215,8 @@ class Navigation extends Component {
       this.renderMarkers_end(midpoint)
       this.renderMarkers_rest(end)
     } else {
-      this.requestDirections(start[0], end)
-      this.requestDirections(start[1], end)
+      this.requestDirections_find_overlap(start[0], end)
+      this.requestDirections_find_overlap(start[1], end)
       this.renderMarkers_start(start[0])
       this.renderMarkers_start(start[1])
       this.renderMarkers_end(end)
