@@ -406,9 +406,10 @@ def get_near_user_list():
         result = db.engine.execute(sql, uid1=UID, uid2=cur_user['UID'])
         rows = result.fetchall()
         if len(rows) == 0:
+            print('None')
             cur_user['common_restaurant'] = 'None'
         else:
-            common_restaurant = [row[0] for row in result]
+            common_restaurant = [row[0] for row in rows]
             cur_user['common_restaurant'] = common_restaurant
         user.append(cur_user)
     dest = dest[:-1]
@@ -470,7 +471,7 @@ def get_position():
     data = {}
     start_point = args['start_point']
     # try:
-        
+
     # except Exception as e:
     #     return create_response(message=str(e),status=411)
 

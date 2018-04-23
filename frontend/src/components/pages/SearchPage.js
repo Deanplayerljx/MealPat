@@ -216,6 +216,7 @@ class SearchPage extends React.Component {
     axios
       .get('http://127.0.0.1:8000/findnearuser', (params = { params }))
       .then(function(response) {
+        console.log('near user')
         console.log(response)
         self.setState({
           nearList: response.data.result,

@@ -19,6 +19,9 @@ class UserInfo extends React.Component {
     let user_info = this.props.user_info
     console.log('hi')
     console.log(user_info)
+    const common_list = user_info.common_restaurant.map((value, idx) => {
+      return <li key={idx}>{value}</li>
+    })
     return (
       <div>
         <h2>Profile for the User {user_info.name}</h2>
@@ -26,7 +29,9 @@ class UserInfo extends React.Component {
           <li>gender: {user_info.gender}</li>
           <li>phonenumber: {user_info.phonenumber}</li>
           <li>interest: {user_info.interest}</li>
-          <li>common restaurants have been: {user_info.common_restraurant}</li>
+          <li>
+            common restaurants have been: <ul>{common_list}</ul>
+          </li>
         </ul>
         <Button primary onClick={this.find_route}>
           {' '}
