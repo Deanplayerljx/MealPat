@@ -291,7 +291,7 @@ def get_user_info():
     # basic info of user
     data = {item[0]:item[1] for item in items}
 
-    sql = text('select name from history h1, history h2, restaurant where h1."UID" =:uid1 and h2."UID"=:uid2 and h1."RID" = h2."RID"')
+    sql = text('select name from history h1, history h2, restaurant where h1."UID" =:uid1 and h2."UID"=:uid2 and h1."RID" = h2."RID" and h1."RID" = restaurant."RID"')
     result = db.engine.execute(sql, uid1=cur_uid, uid2=clicked_uid)
     common_restaurant = [row[0] for row in result]
     data['common_restaurant'] = common_restaurant
@@ -402,7 +402,7 @@ def get_near_user_list():
         items = row.items()
         cur_user = {item[0]:item[1] for item in items}
         # find common restaurants
-        sql = text('select name from history h1, history h2, restaurant where h1."UID" =:uid1 and h2."UID"=:uid2 and h1."RID" = h2."RID"')
+        sql = text('select name from history h1, history h2, restaurant where h1."UID" =:uid1 and h2."UID"=:uid2 and h1."RID" = h2."RID" and h1."RID" = restaurant."RID"')
         result = db.engine.execute(sql, uid1=UID, uid2=cur_user['UID'])
         rows = result.fetchall()
         if len(rows) == 0:
