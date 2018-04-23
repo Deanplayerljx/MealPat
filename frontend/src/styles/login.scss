@@ -1,11 +1,18 @@
-.login{
+.login {
   position: absolute;
   width: 30%;
-  top:20%;
-  left:28%;
-}
-.back{
+  top: 20%;
+  left: 28%; }
+
+.back {
   position: absolute;
-  top:12%;
-  left:18%;
-}
+  top: 12%;
+  left: 18%; }
+
+  body {
+      background-image: url("3.jpg");
+      background-repeat: no-repeat;
+      background-size: 100% 100%;
+      opacity: 100;
+  }
+
