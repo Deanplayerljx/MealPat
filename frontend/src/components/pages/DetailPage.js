@@ -167,7 +167,7 @@ class DetailPage extends React.Component {
             )
           })}
         </ul>
-        <Form onSubmit={this.handleCreate}>
+        <Form className="addpost" onSubmit={this.handleCreate}>
           <Form.Group widths="equal">
             <Form.Input
               placeholder="TITLE"

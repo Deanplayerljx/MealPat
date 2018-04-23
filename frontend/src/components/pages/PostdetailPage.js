@@ -39,6 +39,11 @@ class PostdetailPage extends React.Component {
     axios
       .put(`http://127.0.0.1:8000/join_post`, data)
       .then(function(response) {
+        var newlist = self.state.accompanies_name
+        newlist.push(self.state.username)
+        self.setState({ accompanies_name: newlist })
+
+        console.log(newlist)
         console.log(response)
       })
       .catch(function(error) {
