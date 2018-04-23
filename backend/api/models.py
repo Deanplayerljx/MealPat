@@ -132,7 +132,7 @@ class History(db.Model):
     """History(time, UID, RID, rating, accompanies)"""
     __tablename__ = "history"
 
-    time = db.Column(db.DateTime)
+    time = db.Column(db.DateTime, primary_key=True )
     UID = db.Column(db.Integer, db.ForeignKey('mealpat_user.UID', ondelete='CASCADE',onupdate='CASCADE'), primary_key=True, nullable=False)
     RID = db.Column(db.Integer, db.ForeignKey('restaurant.RID', ondelete='CASCADE', onupdate='CASCADE'), primary_key=True, nullable=False)
     accompanies = db.Column(ARRAY(db.Integer))
