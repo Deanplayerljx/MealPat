@@ -12,12 +12,12 @@ const HomePage = () => (
     </h1>
     <div className="log">
       <a href="login" className="nav">
-        login
+        <button type="button">Login</button>
       </a>
     </div>
     <div className="sign">
       <a href="signup" className="nav">
-        Signup
+        <button type="button">Signup</button>
       </a>
     </div>
   </html>
