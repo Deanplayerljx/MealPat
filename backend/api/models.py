@@ -98,6 +98,8 @@ class IndividualChatRoom(db.Model):
     room_name = db.Column(db.String(20))
     owner1 = db.Column(db.Integer)
     owner2 = db.Column(db.Integer)
+    new_message1 = db.Column(db.Boolean)
+    new_message2 = db.Column(db.Boolean)
     def __init__(self, data):
             self.messages = data['messages']
 

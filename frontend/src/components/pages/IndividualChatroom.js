@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import io from 'socket.io-client'
 import { Button, TextArea, Form } from 'semantic-ui-react'
 import '../../styles/chatroom.css'
+import axios from 'axios'
 class Chatroom extends React.Component {
   constructor(props) {
     console.log(props)
@@ -19,7 +20,8 @@ class Chatroom extends React.Component {
         room: this.state.room,
         username: this.state.username,
         cid: this.state.CID,
-        is_individual: true
+        is_individual: true,
+        source: this.state.source
       })
     })
     this.socket.on('disconnect', function() {
@@ -27,6 +29,7 @@ class Chatroom extends React.Component {
     })
     this.socket.on('message', msg => {
       this.addMessage(msg)
+      this.updateNewMessageState(this.state.source, this.state.CID)
     })
     this.socket.on('join', response => {
       this.handleJoin(response)
@@ -35,10 +38,19 @@ class Chatroom extends React.Component {
     this.socket.on('leave', response => {
       this.handleLeave(response)
     })
-    //  this.handleJoin = this.handleJoin.bind(this)
   }
-  componentDidMount() {}
-  handleSend = e => {}
+
+  updateNewMessageState = (uid, cid) => {
+    let data = { uid: uid, cid: cid }
+    axios
+      .put('http://127.0.0.1:8000/update_new_message', data)
+      .then(function(response) {
+        console.log('updated message state')
+      })
+      .catch(function(error) {
+        console.log(error)
+      })
+  }
 
   handleJoin = data => {
     if (data['username'] === this.state.username) {
@@ -83,10 +95,11 @@ class Chatroom extends React.Component {
     e.preventDefault()
     console.log('source')
     console.log(this.state.source)
+    console.log(this.state.messages)
     this.socket.emit('individual_message', {
       source: this.state.source,
       target: this.state.target,
-      message: this.state.username + ':' + this.state.cur_message,
+      message: this.state.username + ': ' + this.state.cur_message,
       room: this.state.room,
       cid: this.state.CID,
       source_name: this.state.username
@@ -109,7 +122,6 @@ class Chatroom extends React.Component {
 
   render() {
     // console.log(this.state)
-    console.log(this.state.messages)
     const messages = this.state.messages.map((message, i) => {
       return <li key={i}>{message}</li>
     })

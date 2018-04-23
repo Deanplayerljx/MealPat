@@ -87,7 +87,7 @@ class Chatroom extends React.Component {
   handleSend = e => {
     e.preventDefault()
     this.socket.send({
-      message: this.state.username + ':' + this.state.cur_message,
+      message: this.state.username + ': ' + this.state.cur_message,
       room: this.state.CID,
       cid: this.state.CID,
       is_individual: false

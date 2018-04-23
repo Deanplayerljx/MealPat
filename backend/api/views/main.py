@@ -32,6 +32,7 @@ FIND_NEAR_REST = '/findnearrest'
 GET_POSITION = '/get_location'
 CREATE_CHAT = '/individual_chat'
 FIND_PRIVATE_CHAT = '/private_chat/<int:uid>'
+UPDATE_NEW_MESSAGE_STATUS = '/update_new_message'
 # do constant checking
 def check_old_posts():
     sql = text('select * from post where time < CURRENT_TIMESTAMP')
@@ -91,12 +92,21 @@ def handle_message(data):
 @socketio.on('individual_message')
 def handle_individual_message(data):
     # add message to database
-    sql = text('select messages from individual_chatroom where "CID"=:cid')
+    sql = text('select messages, owner1, owner2 from individual_chatroom where "CID"=:cid')
     result = db.engine.execute(sql, cid=int(data['cid'])).first()
     history_message= result[0]
+    owner1 = result[1]
+    owner2 = result[2]
     history_message.append(data['message'])
-    sql = text('update individual_chatroom set messages=:history where "CID"=:cid')
-    result = db.engine.execute(sql, cid=int(data['cid']),history=history_message)
+
+    # owner1 is the target
+    if data['target'] == owner1:
+        sql = text('update individual_chatroom set messages=:history, new_message1=:new_message where "CID"=:cid')
+        result = db.engine.execute(sql, cid=int(data['cid']),history=history_message, new_message=True)
+    elif data['target'] == owner2:
+        sql = text('update individual_chatroom set messages=:history, new_message2=:new_message where "CID"=:cid')
+        result = db.engine.execute(sql, cid=int(data['cid']),history=history_message, new_message=True)
+
     response = {'source': data['source'], 'target': data['target'], 'room': data['room'], 'CID':data['cid'], 'source_name':data['source_name']}
     emit('individual_message', response, broadcast=True)
     print ('another room')
@@ -115,8 +125,16 @@ def on_join(data):
     join_room(room)
     # fetch histories
     if is_individual:
-        sql = text('select messages from individual_chatroom where "CID"=:cid')
+        sql = text('select messages, owner1, owner2 from individual_chatroom where "CID"=:cid')
         result = db.engine.execute(sql, cid=int(cid)).first()
+        # source is owner 1
+        if data['source'] == result[1]:
+            sql = text('update individual_chatroom set new_message1=:new_message where "CID"=:cid')
+            db.engine.execute(sql, cid=cid, new_message=False)
+        # source is owner2
+        elif data['source'] == result[2]:
+            sql = text('update individual_chatroom set new_message2=:new_message where "CID"=:cid')
+            db.engine.execute(sql, cid=cid, new_message=False)
     else:
         sql = text('select messages from chatroom where "CID"=:cid')
         result = db.engine.execute(sql, cid=int(cid)).first()
@@ -472,13 +490,13 @@ def create_individual_chat():
     except:
         create_response(message='missing required components',status=411)
     sql = text('select "CID", room_name from individual_chatroom where room_name=:name1 or room_name=:name2')
-    result = db.engine.execute(sql, name1=str(source)+'_'+str(target), name2=str(target_)+'_'+str(source)).first()
+    result = db.engine.execute(sql, name1=str(source)+'_'+str(target), name2=str(target)+'_'+str(source)).first()
     # need to create a new one
     if result is None:
         # create a new chatroom and get back cid
-        sql = text('insert into individual_chatroom(messages, room_name, owner1, owner2) \
-                values (:messages, :room_name, :owner1, :owner2) returning "CID", room_name')
-        result = db.engine.execute(sql, messages=[], room_name=str(source)+'_'+str(target), owner1=source, owner2=target).first()
+        sql = text('insert into individual_chatroom(messages, room_name, owner1, owner2, new_message1, new_message2) \
+                values (:messages, :room_name, :owner1, :owner2, :new_message, :new_message) returning "CID", room_name')
+        result = db.engine.execute(sql, messages=[], room_name=str(source)+'_'+str(target), owner1=source, owner2=target, new_message=False).first()
         cid = result.items()[0][1]
         room_name = result.items()[1][1]
         return create_response({'CID':cid, 'room_name':room_name})
@@ -491,19 +509,48 @@ def find_private_chat(uid):
     result = db.engine.execute(sql, owner=uid).fetchall()
     chatroom_list = []
     for row in result:
-        source = None
-        if row[3] == uid:
-            source = row[4]
-        elif row[4] == uid:
-            source = row[3]
+        owner1 = row[3]
+        owner2 = row[4]
+        new_message1 = row[5]
+        new_message2 = row[6]
+        new_message = False
+        target = None
+        if owner1 == uid:
+            target = owner2
+            new_message = new_message1
+        elif owner2 == uid:
+            target = owner1
+            new_message = new_message2
         sql = text('select name from mealpat_user where "UID"=:source')
-        source_name = db.engine.execute(sql, source=source).first()[0]
+        source_name = db.engine.execute(sql, source=target).first()[0]
         chatroom = {
-            'source':source,
-            'target': uid,
+            'source':uid,
+            'target': target,
             'room': row[2],
             'CID': row[0],
-            'source_name': source_name
+            'source_name': source_name,
+            'new_message': new_message
         }
         chatroom_list.append(chatroom)
     return create_response({'chatroom_list': chatroom_list})
+
+# set the uid's new_message status to false
+@app.route(UPDATE_NEW_MESSAGE_STATUS, methods=['PUT'])
+def update_new_message_status():
+    request_json = request.get_json()
+    try:
+        uid = request_json['uid']
+        cid = request_json['cid']
+    except:
+        create_response(message='missing required components',status=411)
+    sql = text('select owner1, owner2 from individual_chatroom where "CID"=:cid')
+    result = db.engine.execute(sql, cid=cid).first()
+    # owner1 is equal current requester
+    if uid == result[0]:
+        sql = text('update individual_chatroom set new_message1=:new_message where "CID"=:cid')
+        result = db.engine.execute(sql, cid=cid, new_message=False)
+    elif uid == result[1]:
+        sql = text('update individual_chatroom set new_message2=:new_message where "CID"=:cid')
+        result = db.engine.execute(sql, cid=cid, new_message=False)
+    return create_response({})
+

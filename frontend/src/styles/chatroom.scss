@@ -22,5 +22,14 @@
 }
 
 .leave{
-  max-width: 20%
+  max-width: 20%;
+  float: right;
 }
+
+.ui.form{
+  max-width:100%
+}
+
+h1 {
+  display: inline-block;
+  margin-top: 20px; }

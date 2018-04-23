@@ -38,15 +38,12 @@ class SearchPage extends React.Component {
     }
 
     console.log('enter search page')
-    console.log(this.state)
     let self = this
     axios
       .get('http://127.0.0.1:8000/search')
       .then(function(response) {
-        console.log(response)
         self.state.name_address_rid_lati_longi =
           response.data.result.name_address_rid_lati_longi
-        console.log(self)
       })
       .catch(function(error) {
         console.log(error)
@@ -104,9 +101,8 @@ class SearchPage extends React.Component {
         console.log(response)
         let chatroom_list = response.data.result.chatroom_list
         chatroom_list.map((chatroom, idx) => {
-          chatroom['new_message'] = false
           chatroom['username'] = self.state.username
-          chatroom['target'] = chatroom['source']
+          chatroom['target'] = chatroom['target']
           chatroom['source'] = self.state.UID
           return chatroom
         })
@@ -123,7 +119,6 @@ class SearchPage extends React.Component {
         response.data.result.UID = self.state.UID
         response.data.result.username = self.state.username
         response.data.result.user_loc = self.state.defaultCenter
-        console.log(response.data.result)
         self.socket.disconnect()
         self.props.history.push({
           pathname: '/detail',
@@ -197,8 +192,6 @@ class SearchPage extends React.Component {
         isLoading: false,
         results: this.filter(value)
       })
-      console.log('hiiii')
-      console.log(this.state.results)
     }, 500)
   }
 
