@@ -2,6 +2,7 @@ body {
     background-image: url("3.jpg");
     background-repeat: no-repeat;
     background-size: 100% 100%;
+    opacity: 100;
 }
 h1 {
     font-size: 2.8em;
@@ -29,13 +30,22 @@ a.nav {
       color: red;
 }
 
-a.nav:link {color: blue; text-decoration: none; }
-a.nav:visited {color: blue; text-decoration: none; }
-a.nav:hover {color: orange; text-decoration: underline; }
-a.nav:active {color: red; }
+a.nav:link {color: red; text-decoration: none; }
+a.nav:visited {color: purple; text-decoration: none; }
+a.nav:hover {color: yellow; text-decoration: underline; }
+a.nav:active {color: yellow; }
 #intro {
     font-size: 1.3em;
 }
-.colorful {
-    color: orange;
+button {
+  background-color: #4CAF50;
+border: none;
+color: white;
+padding: 15px 32px;
+text-align: center;
+text-decoration: none;
+display: inline-block;
+font-size: 16px;
+margin: 4px 2px;
+cursor: pointer;
 }
