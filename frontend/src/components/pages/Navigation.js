@@ -238,13 +238,15 @@ class Navigation extends Component {
     }
     console.log(latlng)
     this.geocoder.geocode({ location: latlng }, (results, status) => {
+      console.log(results)
+      console.log('hii')
       if (status === 'OK') {
         marker.addListener('click', () => {
           this.infowindow.setContent(
             'We suggest you to meet here.' +
               '\n' +
               'Address:' +
-              results[1].formatted_address
+              results[0].formatted_address
           )
           this.infowindow.open(this.map, marker)
         })

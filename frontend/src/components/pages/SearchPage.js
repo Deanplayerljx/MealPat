@@ -211,7 +211,7 @@ class SearchPage extends React.Component {
       .get('http://127.0.0.1:8000/findnearuser', (params = { params }))
       .then(function(response) {
         console.log('near user')
-        console.log(response)
+        console.log(response.data.result)
         self.setState({
           nearList: response.data.result,
           isNearUser: true,

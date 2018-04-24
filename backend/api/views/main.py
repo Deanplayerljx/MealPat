@@ -410,7 +410,7 @@ def get_near_user_list():
         if len(rows) == 0:
             cur_user['common_restaurant'] = 'None'
         else:
-            common_restaurant = [row[0] for row in result]
+            common_restaurant = [row[0] for row in rows]
             cur_user['common_restaurant'] = common_restaurant
         user.append(cur_user)
     dest = dest[:-1]
