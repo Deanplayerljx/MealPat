@@ -113,22 +113,16 @@ class SearchPage extends React.Component {
 
   submit = data => {
     var self = this
-    axios
-      .get('http://127.0.0.1:8000/restaurant/' + data)
-      .then(function(response) {
-        response.data.result.UID = self.state.UID
-        response.data.result.username = self.state.username
-        response.data.result.user_loc = self.state.defaultCenter
-        self.socket.disconnect()
-        self.props.history.push({
-          pathname: '/detail',
-          state: response.data.result
-        })
-        //  self.state.results = response.data.result.name_address_rid
-      })
-      .catch(function(error) {
-        console.log(error)
-      })
+    let states = {}
+    states['UID'] = self.state.UID
+    states['username'] = self.state.username
+    states['user_loc'] = self.state.defaultCenter
+    states['RID'] = data
+    self.socket.disconnect()
+    self.props.history.push({
+      pathname: '/detail',
+      state: states
+    })
   }
 
   resetComponent = () => {

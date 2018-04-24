@@ -4,53 +4,41 @@ import { Form, Button } from 'semantic-ui-react'
 import axios from 'axios'
 
 class DetailPage extends React.Component {
-  state = {
-    RID: 0,
-    UID: 0,
-    username: 'dean',
-    address: '',
-    categories: [],
-    imageURL: '',
-    name: 'hamburge',
-    phonenumber: '',
-    posts: [],
-    price: '',
-    rating: '',
-    errors: '',
-    posttitle: '',
-    posttime: ''
-  }
-  //  <img src={this.state.imageURL} />
   constructor(props) {
     console.log(props)
     super(props)
     this.state = props.location.state
+    this.state.posts = []
     this.state.posttitle = ''
     this.state.posttime = ''
     console.log(this.state)
     console.log(this.props)
     //  this.handleJoin = this.handleJoin.bind(this)
   }
-  handleDetail = index => {
-    console.log('handledetail')
-    const self = this
+
+  componentDidMount() {
+    console.log(this.state.RID)
+    let self = this
     axios
-      .get('http://127.0.0.1:8000/post/' + self.state.posts[index][0])
+      .get('http://127.0.0.1:8000/restaurant/' + this.state.RID)
       .then(function(response) {
-        var data = {}
-        data = response.data.result
-        data.CurrUID = self.state.UID
-        data.username = self.state.username
-        data.user_loc = self.state.user_loc
-        console.log(data)
-        self.props.history.push({
-          pathname: 'postdetail',
-          state: data
-        })
+        self.setState(response.data.result)
       })
       .catch(function(error) {
         console.log(error)
       })
+  }
+  handleDetail = index => {
+    console.log('handledetail')
+    let data = {}
+    data.UID = this.state.UID
+    data.username = this.state.username
+    data.user_loc = this.state.user_loc
+    data.PID = this.state.posts[index][0]
+    this.props.history.push({
+      pathname: 'postdetail',
+      state: data
+    })
   }
 
   handleDelete = index => {

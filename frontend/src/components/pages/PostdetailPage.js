@@ -8,31 +8,36 @@ import UserInfo from './UserInfo'
 class PostdetailPage extends React.Component {
   constructor(props) {
     super(props)
-    this.state = {
-      CID: props.location.state.CID,
-      CurrUID: props.location.state.CurrUID,
-      PID: props.location.state.PID,
-      RID: props.location.state.RID,
-      UID: props.location.state.UID,
-      user_loc: props.location.state.user_loc,
-      accompanies: props.location.state.accompanies,
-      accompanies_name: props.location.state.accompanies_name,
-      time: props.location.state.time,
-      title: props.location.state.title,
-      username: props.location.state.username,
-      selected: false,
-      creatername: props.location.state.creater_name,
-      result: {}
-    }
-    console.log('come to post detail')
+    console.log('hiiii')
+    console.log(this.props.location.state)
+    this.state = this.props.location.state
+    this.state['selected'] = false
+    this.state['result'] = {}
+    this.state['accompanies_name'] = []
+    console.log(this.state)
     //this.state = props.location.state
   }
 
+  componentDidMount() {
+    let self = this
+    axios
+      .get('http://127.0.0.1:8000/post/' + this.state.PID)
+      .then(function(response) {
+        var data = {}
+        data = response.data.result
+        console.log('****')
+        console.log(data)
+        self.setState(data)
+      })
+      .catch(function(error) {
+        console.log(error)
+      })
+  }
   handleJoin = index => {
     console.log('handlejoin')
     const self = this
     var data = {}
-    data.UID = this.state.CurrUID
+    data.UID = this.state.UID
     data.PID = this.state.PID
     // data.socket = this.state.socket
     console.log(data)
@@ -78,9 +83,9 @@ class PostdetailPage extends React.Component {
     console.log(e)
     var self = this
     var data = {}
-    data.cur_uid = self.state.CurrUID
-    if (self.state.creatername == e[1]) {
-      data.clicked_uid = self.state.UID
+    data.cur_uid = self.state.UID
+    if (self.state.creater_name == e[1]) {
+      data.clicked_uid = self.state.creater_uid
     } else {
       data.clicked_uid = self.state.accompanies[e[0]]
     }
@@ -120,8 +125,8 @@ class PostdetailPage extends React.Component {
   render() {
     console.log('render is called')
     console.log(this.state)
-    const self = this.state
-    const accompanylist = self.accompanies_name.map((person, index) => {
+
+    const accompanylist = this.state.accompanies_name.map((person, index) => {
       return (
         <li key={index}>
           <a onClick={this.handleFindC.bind(this, [index, person])}>{person}</a>
@@ -142,17 +147,17 @@ class PostdetailPage extends React.Component {
         <h1 className="headerP"> Title: {this.state.title}</h1>
         <Button onClick={this.handleGoback}>Goback</Button>
         <br />
-        <span>Time:&nbsp; {self.time}</span>
+        <span>Time:&nbsp; {this.state.time}</span>
         <br />
         <span>
           CreaterName:&nbsp;
           <a
             onClick={this.handleFindC.bind(this, [
-              this.state.UID,
-              this.state.creatername
+              this.state.creater_uid,
+              this.state.creater_name
             ])}
           >
-            {this.state.creatername}
+            {this.state.creater_name}
           </a>
         </span>
         <br />

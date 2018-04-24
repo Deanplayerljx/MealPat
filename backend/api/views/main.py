@@ -260,6 +260,8 @@ def get_post_detail(pid):
     items = result.items()
     data = {item[0]:item[1] for item in items}
     creater_id = data['UID']
+    data['creater_uid'] = creater_id
+    data.pop('UID')
     sql = text('select name from mealpat_user where "UID"=:uid')
     creater_name = db.engine.execute(sql, uid=creater_id).first()[0]
     accompanies_ids = data['accompanies']
@@ -291,7 +293,7 @@ def get_user_info():
     # basic info of user
     data = {item[0]:item[1] for item in items}
 
-    sql = text('select name from history h1, history h2, restaurant where h1."UID" =:uid1 and h2."UID"=:uid2 and h1."RID" = h2."RID" and h1."RID" = restaurant."RID"')
+    sql = text('select name from history h1, history h2, restaurant where h1."UID" =:uid1 and h2."UID"=:uid2 and h1."RID" = h2."RID"')
     result = db.engine.execute(sql, uid1=cur_uid, uid2=clicked_uid)
     common_restaurant = [row[0] for row in result]
     data['common_restaurant'] = common_restaurant
@@ -402,14 +404,13 @@ def get_near_user_list():
         items = row.items()
         cur_user = {item[0]:item[1] for item in items}
         # find common restaurants
-        sql = text('select name from history h1, history h2, restaurant where h1."UID" =:uid1 and h2."UID"=:uid2 and h1."RID" = h2."RID" and h1."RID" = restaurant."RID"')
+        sql = text('select name from history h1, history h2, restaurant where h1."UID" =:uid1 and h2."UID"=:uid2 and h1."RID" = h2."RID"')
         result = db.engine.execute(sql, uid1=UID, uid2=cur_user['UID'])
         rows = result.fetchall()
         if len(rows) == 0:
-            print('None')
             cur_user['common_restaurant'] = 'None'
         else:
-            common_restaurant = [row[0] for row in rows]
+            common_restaurant = [row[0] for row in result]
             cur_user['common_restaurant'] = common_restaurant
         user.append(cur_user)
     dest = dest[:-1]
@@ -471,7 +472,7 @@ def get_position():
     data = {}
     start_point = args['start_point']
     # try:
-
+        
     # except Exception as e:
     #     return create_response(message=str(e),status=411)
 
